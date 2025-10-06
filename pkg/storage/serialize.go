@@ -2,28 +2,29 @@ package storage
 
 import (
 	"compress/gzip"
-	"encoding/gob"
 	"fmt"
 	"io"
 	"os"
-
-	"github.com/tahcohcat/gofaiss/pkg/index/flat"
-	"github.com/tahcohcat/gofaiss/pkg/index/hnsw"
-	"github.com/tahcohcat/gofaiss/pkg/index/pq"
 )
 
-// Serializer handles saving and loading indexes
-type Serializer struct {
-	compress bool
+// Format represents serialization format
+type Format string
+
+const (
+	FormatGob  Format = "gob"
+	FormatJSON Format = "json"
+)
+
+// Serializable interface for types that can be serialized
+type Serializable interface {
+	// Save writes the object using a format-agnostic writer
+	Save(w Writer) error
+	// Load reads the object using a format-agnostic reader
+	Load(r Reader) error
 }
 
-// NewSerializer creates a new serializer
-func NewSerializer(compress bool) *Serializer {
-	return &Serializer{compress: compress}
-}
-
-// SaveFlatIndex saves a flat index to file
-func (s *Serializer) SaveFlatIndex(idx *flat.Index, filename string) error {
+// SaveToFile saves a Serializable object to a file with specified format and optional compression
+func SaveToFile(obj Serializable, filename string, format Format, compress bool) error {
 	f, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -31,191 +32,78 @@ func (s *Serializer) SaveFlatIndex(idx *flat.Index, filename string) error {
 	defer f.Close()
 
 	var w io.Writer = f
-	if s.compress {
+	if compress {
 		gzw := gzip.NewWriter(f)
 		defer gzw.Close()
 		w = gzw
 	}
 
-	encoder := gob.NewEncoder(w)
-	
-	// Save index type marker
-	if err := encoder.Encode("flat"); err != nil {
-		return err
-	}
-	
-	// Save dimension and metric
-	if err := encoder.Encode(idx.Dimension()); err != nil {
-		return err
-	}
-	
-	// Save vectors
-	vectors := idx.GetVectors()
-	if err := encoder.Encode(len(vectors)); err != nil {
-		return err
-	}
-	for _, v := range vectors {
-		if err := encoder.Encode(v); err != nil {
-			return err
-		}
-	}
-	
-	return nil
-}
-
-// SaveHNSWIndex saves an HNSW index to file
-func (s *Serializer) SaveHNSWIndex(idx *hnsw.Index, filename string) error {
-	f, err := os.Create(filename)
+	writer, err := NewWriter(w, format)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
 
-	var w io.Writer = f
-	if s.compress {
-		gzw := gzip.NewWriter(f)
-		defer gzw.Close()
-		w = gzw
-	}
-
-	encoder := gob.NewEncoder(w)
-	
-	// Save index type marker
-	if err := encoder.Encode("hnsw"); err != nil {
-		return err
-	}
-	
-	// Note: This is simplified. In practice, you'd need getter methods
-	// or make fields public/add serialization methods to hnsw.Index
-	stats := idx.Stats()
-	if err := encoder.Encode(stats); err != nil {
-		return err
-	}
-	
-	return nil
+	return obj.Save(writer)
 }
 
-// SavePQIndex saves a PQ index to file
-func (s *Serializer) SavePQIndex(idx *pq.Index, filename string) error {
-	f, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	var w io.Writer = f
-	if s.compress {
-		gzw := gzip.NewWriter(f)
-		defer gzw.Close()
-		w = gzw
-	}
-
-	encoder := gob.NewEncoder(w)
-	
-	// Save index type marker
-	if err := encoder.Encode("pq"); err != nil {
-		return err
-	}
-	
-	stats := idx.Stats()
-	if err := encoder.Encode(stats); err != nil {
-		return err
-	}
-	
-	return nil
-}
-
-// LoadIndex loads an index from file and returns the appropriate type
-func (s *Serializer) LoadIndex(filename string) (interface{}, error) {
+// LoadFromFile loads a Serializable object from a file with specified format and optional compression
+func LoadFromFile(obj Serializable, filename string, format Format, compress bool) error {
 	f, err := os.Open(filename)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer f.Close()
 
 	var r io.Reader = f
-	if s.compress {
+	if compress {
 		gzr, err := gzip.NewReader(f)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		defer gzr.Close()
 		r = gzr
 	}
 
-	decoder := gob.NewDecoder(r)
-	
-	// Read index type
-	var indexType string
-	if err := decoder.Decode(&indexType); err != nil {
-		return nil, err
-	}
-	
-	switch indexType {
-	case "flat":
-		return s.loadFlatIndex(decoder)
-	case "hnsw":
-		return s.loadHNSWIndex(decoder)
-	case "pq":
-		return s.loadPQIndex(decoder)
-	default:
-		return nil, fmt.Errorf("unknown index type: %s", indexType)
-	}
-}
-
-func (s *Serializer) loadFlatIndex(decoder *gob.Decoder) (*flat.Index, error) {
-	// Load dimension
-	var dim int
-	if err := decoder.Decode(&dim); err != nil {
-		return nil, err
-	}
-	
-	// Create index (simplified - need metric info)
-	idx, err := flat.New(dim, "l2")
+	reader, err := NewReader(r, format)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	
-	// Load vectors
-	var count int
-	if err := decoder.Decode(&count); err != nil {
-		return nil, err
-	}
-	
-	// Note: This would need proper implementation with Vector type
-	// vectors := make([]vector.Vector, count)
-	// for i := 0; i < count; i++ {
-	//     if err := decoder.Decode(&vectors[i]); err != nil {
-	//         return nil, err
-	//     }
-	// }
-	// idx.Add(vectors)
-	
-	return idx, nil
+
+	return obj.Load(reader)
 }
 
-func (s *Serializer) loadHNSWIndex(decoder *gob.Decoder) (*hnsw.Index, error) {
-	// Simplified implementation
-	return nil, fmt.Errorf("HNSW loading not fully implemented")
+// Writer wraps an io.Writer with format-specific encoding
+type Writer interface {
+	io.Writer
+	Encode(v any) error
 }
 
-func (s *Serializer) loadPQIndex(decoder *gob.Decoder) (*pq.Index, error) {
-	// Simplified implementation
-	return nil, fmt.Errorf("PQ loading not fully implemented")
+// Reader wraps an io.Reader with format-specific decoding
+type Reader interface {
+	io.Reader
+	Decode(v any) error
 }
 
-// Helper function to save any index type
-func SaveIndex(idx interface{}, filename string, compress bool) error {
-	s := NewSerializer(compress)
-	
-	switch v := idx.(type) {
-	case *flat.Index:
-		return s.SaveFlatIndex(v, filename)
-	case *hnsw.Index:
-		return s.SaveHNSWIndex(v, filename)
-	case *pq.Index:
-		return s.SavePQIndex(v, filename)
+// NewWriter creates a format-specific writer
+func NewWriter(w io.Writer, format Format) (Writer, error) {
+	switch format {
+	case FormatGob:
+		return NewGobWriter(w), nil
+	case FormatJSON:
+		return NewJSONWriter(w), nil
 	default:
-		return fmt.Errorf("unsupported index type")
+		return nil, fmt.Errorf("unsupported format: %s", format)
+	}
+}
+
+// NewReader creates a format-specific reader
+func NewReader(r io.Reader, format Format) (Reader, error) {
+	switch format {
+	case FormatGob:
+		return NewGobReader(r), nil
+	case FormatJSON:
+		return NewJSONReader(r), nil
+	default:
+		return nil, fmt.Errorf("unsupported format: %s", format)
 	}
 }

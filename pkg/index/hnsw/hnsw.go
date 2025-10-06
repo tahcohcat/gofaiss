@@ -11,6 +11,12 @@ import (
 	"github.com/tahcohcat/gofaiss/pkg/metric"
 	"github.com/tahcohcat/gofaiss/pkg/vector"
 )
+type Node struct {
+	ID    int64
+	Data  []float32
+	Level int
+	Edges [][]int64 // edges per level
+}
 
 // Index implements HNSW (Hierarchical Navigable Small World) index
 type Index struct {
@@ -197,7 +203,7 @@ func (idx *Index) Remove(id int64) error {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
 
-	node, exists := idx.nodes[id]
+	_, exists := idx.nodes[id]
 	if !exists {
 		return fmt.Errorf("node %d not found", id)
 	}
@@ -247,7 +253,7 @@ func (idx *Index) Dimension() int {
 }
 
 // Stats returns index statistics
-func (idx *Index) Stats() index.Stats {
+func (idx *Index) Stats() stats.Stats {
 	idx.mu.RLock()
 	defer idx.mu.RUnlock()
 
@@ -255,7 +261,7 @@ func (idx *Index) Stats() index.Stats {
 	edgeMem := len(idx.nodes) * idx.M * 8 * 4
 	memoryMB := float64(vectorMem+edgeMem) / (1024 * 1024)
 
-	return index.Stats{
+	return stats.Stats{
 		TotalVectors:  len(idx.nodes),
 		Dimension:     idx.dim,
 		IndexType:     "HNSW",

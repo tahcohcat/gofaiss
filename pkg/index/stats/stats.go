@@ -5,5 +5,5 @@ type Stats struct {
 	Dimension     int
 	IndexType     string
 	MemoryUsageMB float64
-	ExtraInfo     map[string]interface{}
+	ExtraInfo     map[string]any
 }

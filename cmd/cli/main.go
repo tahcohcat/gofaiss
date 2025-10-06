@@ -10,6 +10,7 @@ import (
 	"github.com/tahcohcat/gofaiss/pkg/index/flat"
 	"github.com/tahcohcat/gofaiss/pkg/index/hnsw"
 	"github.com/tahcohcat/gofaiss/pkg/index/pq"
+	"github.com/tahcohcat/gofaiss/pkg/index/stats"
 	"github.com/tahcohcat/gofaiss/pkg/vector"
 )
 
@@ -192,32 +193,29 @@ func searchOne(idx interface{}, query []float32, k int) ([]vector.SearchResult, 
 }
 
 func printStats(idx interface{}) {
-	var totalVecs int
-	var memoryMB float64
-	var extraInfo map[string]interface{}
+	var st stats.Stats
 
 	switch v := idx.(type) {
 	case *flat.Index:
-		stats := v.Stats()
-		totalVecs = stats.TotalVectors
-		memoryMB = stats.MemoryUsageMB
-		extraInfo = stats.ExtraInfo
+		st = v.Stats()
 	case *hnsw.Index:
-		stats := v.Stats()
-		totalVecs = stats.TotalVectors
-		memoryMB = stats.MemoryUsageMB
-		extraInfo = stats.ExtraInfo
+		st = v.Stats()
 	case *pq.Index:
-		stats := v.Stats()
-		totalVecs = stats.TotalVectors
-		memoryMB = stats.MemoryUsageMB
-		extraInfo = stats.ExtraInfo
+		st = v.Stats()
+	default:
+		fmt.Println("Stats not available for this index type")
+		return
 	}
 
 	fmt.Printf("\n=== Index Statistics ===\n")
-	fmt.Printf("Total Vectors: %d\n", totalVecs)
-	fmt.Printf("Memory Usage: %.2f MB\n", memoryMB)
-	if len(extraInfo) > 0 {
-		fmt.Printf("Extra Info: %v\n", extraInfo)
+	fmt.Printf("Total Vectors: %d\n", st.TotalVectors)
+	fmt.Printf("Dimension: %d\n", st.Dimension)
+	fmt.Printf("Index Type: %s\n", st.IndexType)
+	fmt.Printf("Memory Usage: %.2f MB\n", st.MemoryUsageMB)
+	if len(st.ExtraInfo) > 0 {
+		fmt.Printf("Extra Info:\n")
+		for k, v := range st.ExtraInfo {
+			fmt.Printf("  %s: %v\n", k, v)
+		}
 	}
 }
