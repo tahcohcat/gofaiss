@@ -100,13 +100,3 @@ See the [examples](./examples) directory for more detailed usage examples.
 MIT License
 
 ---
-
-# go.mod
-
-module github.com/tahcohcat/gofaiss
-
-go 1.21
-
-require (
-    // Add any external dependencies here
-)
