@@ -295,7 +295,11 @@ func (idx *Index) insertNode(node *Node) {
 		changed := true
 		for changed {
 			changed = false
-			for _, neighborID := range idx.nodes[curr].Edges[lc] {
+			currNode := idx.nodes[curr]
+			if lc >= len(currNode.Edges) {
+				continue
+			}
+			for _, neighborID := range currNode.Edges[lc] {
 				d := idx.metric.Distance(node.Data, idx.nodes[neighborID].Data)
 				if d < currDist {
 					currDist = d
@@ -318,10 +322,14 @@ func (idx *Index) insertNode(node *Node) {
 
 		for _, neighborID := range neighbors {
 			node.Edges[lc] = append(node.Edges[lc], neighborID)
-			idx.nodes[neighborID].Edges[lc] = append(idx.nodes[neighborID].Edges[lc], node.ID)
+			
+			neighbor := idx.nodes[neighborID]
+			if lc <= neighbor.Level {
+				neighbor.Edges[lc] = append(neighbor.Edges[lc], node.ID)
 
-			if len(idx.nodes[neighborID].Edges[lc]) > M {
-				idx.pruneConnections(neighborID, lc, M)
+				if len(neighbor.Edges[lc]) > M {
+					idx.pruneConnections(neighborID, lc, M)
+				}
 			}
 		}
 
@@ -404,10 +412,13 @@ func (idx *Index) selectNeighbors(candidates []vector.SearchResult, M int) []int
 
 func (idx *Index) pruneConnections(nodeID int64, layer, M int) {
 	node := idx.nodes[nodeID]
-	candList := make([]vector.SearchResult, len(node.Edges[layer]))
-	for i, nid := range node.Edges[layer] {
+	candList := make([]vector.SearchResult, 0, len(node.Edges[layer]))
+	for _, nid := range node.Edges[layer] {
+		if idx.nodes[nid] == nil {
+			continue
+		}
 		d := idx.metric.Distance(node.Data, idx.nodes[nid].Data)
-		candList[i] = vector.SearchResult{ID: nid, Distance: d}
+		candList = append(candList, vector.SearchResult{ID: nid, Distance: d})
 	}
 	sort.Slice(candList, func(i, j int) bool {
 		return candList[i].Distance < candList[j].Distance

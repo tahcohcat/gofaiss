@@ -84,7 +84,7 @@ func New(dim int, metricType string, config Config) (*Index, error) {
 		return nil, fmt.Errorf("nlist must be positive")
 	}
 	if config.M <= 0 {
-		return nil, fmt.Errorf("M must be positive")
+		return nil, fmt.Errorf("m must be positive")
 	}
 	if dim%config.M != 0 {
 		return nil, fmt.Errorf("dimension %d must be divisible by M %d", dim, config.M)
