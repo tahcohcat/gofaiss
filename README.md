@@ -84,17 +84,33 @@ gofaiss/
 └── examples/         # Examples
 ```
 
+## Documentation
+
+- **[Getting Started](./docs/getting-started.md)** - Installation, quick start, and usage examples
+- **[API Reference](./docs/api.md)** - Complete API documentation for all packages
+- **[Architecture](./docs/architecture.md)** - Design and implementation details
+- **[Benchmarks](./docs/benchmarks.md)** - Performance comparisons and metrics
+- **[Roadmap](./docs/roadmap.md)** - Future plans and features
+
 ## Benchmarks
+
+**Dataset: 100K vectors, 128 dimensions**
 
 | Index Type | Build Time | QPS | Memory | Recall@10 |
 |------------|-----------|-----|---------|-----------|
-| Flat       | 0ms       | 1,000 | 100% | 100% |
-| HNSW       | 1,200ms   | 15,000 | 150% | 98% |
-| IVF+PQ     | 800ms     | 8,000 | 15% | 95% |
+| Flat       | 2ms       | 36 | 48.8 MB | 100% |
+| HNSW       | 18,061ms  | 24,087 | 97.7 MB | 99.96% |
+| IVF        | 4,572ms   | 343 | 49.0 MB | 26.1%* |
+| PQ         | 4,034ms   | 50 | 1.65 MB | 19.7% |
+| IVFPQ      | 8,506ms   | 516 | 1.04 MB | 4.0%* |
+
+*Recall can be improved by tuning `nprobe` parameter (see [benchmarks](./docs/benchmarks.md))
+
+See [detailed benchmarks](./docs/benchmarks.md) for more results, scaling analysis, and tuning guidelines.
 
 ## Examples
 
-See the [examples](./examples) directory for more detailed usage examples.
+See the [examples](./example) directory for more detailed usage examples.
 
 ## License
 
