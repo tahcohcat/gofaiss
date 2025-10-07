@@ -1,5 +1,12 @@
 # GoFAISS - FAISS-like Vector Search in Go
 
+[![CI](https://github.com/tahcohcat/gofaiss/actions/workflows/ci.yaml/badge.svg)](https://github.com/tahcohcat/gofaiss/actions/workflows/ci.yaml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/tahcohcat/gofaiss.svg)](https://pkg.go.dev/github.com/tahcohcat/gofaiss)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tahcohcat/gofaiss)](https://goreportcard.com/report/github.com/tahcohcat/gofaiss)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub release](https://img.shields.io/github/v/release/tahcohcat/gofaiss)](https://github.com/tahcohcat/gofaiss/releases)
+[![codecov](https://codecov.io/gh/tahcohcat/gofaiss/branch/main/graph/badge.svg)](https://codecov.io/gh/tahcohcat/gofaiss)
+
 A pure Go implementation of Facebook's FAISS (Facebook AI Similarity Search) library for efficient similarity search and clustering of dense vectors.
 
 
