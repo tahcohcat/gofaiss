@@ -1,0 +1,1981 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Go-native, dependency-free vector search engine inspired by FAISS">
+      
+      
+      
+        <link rel="canonical" href="https://tahcohcat.github.io/gofaiss/benchmarks/">
+      
+      
+        <link rel="prev" href="../architecture/">
+      
+      
+        <link rel="next" href="../roadmap/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.21">
+    
+    
+      
+        <title>Benchmarks - gofaiss</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.2a3383ac.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#performance-benchmarks" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="gofaiss" class="md-header__button md-logo" aria-label="gofaiss" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            gofaiss
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Benchmarks
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="cyan"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="cyan"  aria-hidden="true"  type="radio" name="__palette" id="__palette_1">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tahcohcat/gofaiss" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tahcohcat/gofaiss
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="gofaiss" class="md-nav__button md-logo" aria-label="gofaiss" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    gofaiss
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tahcohcat/gofaiss" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tahcohcat/gofaiss
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Benchmarks
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Benchmarks
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-methodology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark Methodology
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmark Methodology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#measured-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Measured Metrics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-10k-vectors-128-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results: 10K Vectors, 128 Dimensions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-100k-vectors-128-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results: 100K Vectors, 128 Dimensions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detailed Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-performance-by-index-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Performance by Index Type
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Performance by Index Type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#flat-index-brute-force" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flat Index (Brute Force)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hnsw-index-graph-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      HNSW Index (Graph-Based)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ivf-index-inverted-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      IVF Index (Inverted File)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pq-index-product-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      PQ Index (Product Quantization)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ivfpq-index-combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      IVFPQ Index (Combined)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-trade-offs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Trade-offs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Trade-offs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#speed-vs-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Speed vs Accuracy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-vs-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory vs Accuracy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-time-vs-query-speed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build Time vs Query Speed
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scaling-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scaling Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scaling Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-time-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Time Scaling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Scaling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-World Scenarios
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real-World Scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario-1-e-commerce-product-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 1: E-commerce Product Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-2-document-similarity-rag-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 2: Document Similarity (RAG System)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-3-image-deduplication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 3: Image Deduplication
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-4-real-time-recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 4: Real-time Recommendation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tuning-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tuning Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tuning Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hnsw-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      HNSW Tuning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ivfivfpq-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      IVF/IVFPQ Tuning
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark Reproducibility
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmark Reproducibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-benchmarks-yourself" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Benchmarks Yourself
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-benchmark-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Benchmark Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmark-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark Environment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistical-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-with-other-libraries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison with Other Libraries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison with Other Libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vs-python-faiss" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs Python FAISS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-hnswlib-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs hnswlib-go
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historical-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Historical Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Historical Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#version-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version History
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Optimizations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing Benchmarks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Roadmap
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-methodology" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark Methodology
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmark Methodology">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#measured-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      Measured Metrics
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-10k-vectors-128-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results: 10K Vectors, 128 Dimensions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-100k-vectors-128-dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Results: 100K Vectors, 128 Dimensions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detailed-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Detailed Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Detailed Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-performance-by-index-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Performance by Index Type
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Query Performance by Index Type">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#flat-index-brute-force" class="md-nav__link">
+    <span class="md-ellipsis">
+      Flat Index (Brute Force)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hnsw-index-graph-based" class="md-nav__link">
+    <span class="md-ellipsis">
+      HNSW Index (Graph-Based)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ivf-index-inverted-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      IVF Index (Inverted File)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pq-index-product-quantization" class="md-nav__link">
+    <span class="md-ellipsis">
+      PQ Index (Product Quantization)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ivfpq-index-combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      IVFPQ Index (Combined)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-trade-offs" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Trade-offs
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Trade-offs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#speed-vs-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Speed vs Accuracy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-vs-accuracy" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory vs Accuracy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-time-vs-query-speed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Build Time vs Query Speed
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scaling-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scaling Analysis
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Scaling Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#query-time-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Query Time Scaling
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memory-scaling" class="md-nav__link">
+    <span class="md-ellipsis">
+      Memory Scaling
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-scenarios" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-World Scenarios
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real-World Scenarios">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scenario-1-e-commerce-product-search" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 1: E-commerce Product Search
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-2-document-similarity-rag-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 2: Document Similarity (RAG System)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-3-image-deduplication" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 3: Image Deduplication
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#scenario-4-real-time-recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Scenario 4: Real-time Recommendation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tuning-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tuning Guidelines
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tuning Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hnsw-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      HNSW Tuning
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ivfivfpq-tuning" class="md-nav__link">
+    <span class="md-ellipsis">
+      IVF/IVFPQ Tuning
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-reproducibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark Reproducibility
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Benchmark Reproducibility">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-benchmarks-yourself" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Benchmarks Yourself
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-benchmark-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Custom Benchmark Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#benchmark-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Benchmark Environment
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statistical-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Analysis
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison-with-other-libraries" class="md-nav__link">
+    <span class="md-ellipsis">
+      Comparison with Other Libraries
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Comparison with Other Libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vs-python-faiss" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs Python FAISS
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vs-hnswlib-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      vs hnswlib-go
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historical-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Historical Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Historical Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#version-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      Version History
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#future-optimizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Future Optimizations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contributing-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contributing Benchmarks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="performance-benchmarks">Performance Benchmarks<a class="headerlink" href="#performance-benchmarks" title="Permanent link">&para;</a></h1>
+<p>Comprehensive performance analysis of GoFAISS across different index types, dataset sizes, and configurations.</p>
+<h2 id="benchmark-methodology">Benchmark Methodology<a class="headerlink" href="#benchmark-methodology" title="Permanent link">&para;</a></h2>
+<h3 id="test-configuration">Test Configuration<a class="headerlink" href="#test-configuration" title="Permanent link">&para;</a></h3>
+<p>All benchmarks were conducted with:</p>
+<ul>
+<li><strong>Hardware</strong>: Modern x86_64 CPU, 16GB RAM</li>
+<li><strong>Dataset</strong>: Randomly generated vectors with fixed seed (42) for reproducibility</li>
+<li><strong>Metrics</strong>: L2 (Euclidean) distance</li>
+<li><strong>Go Version</strong>: 1.21+</li>
+<li><strong>Methodology</strong>: Multiple runs with statistical analysis</li>
+</ul>
+<h3 id="measured-metrics">Measured Metrics<a class="headerlink" href="#measured-metrics" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Build Time</strong>: Time to construct index (milliseconds)</li>
+<li><strong>Query Latency</strong>: Per-query search time</li>
+<li>Average (mean)</li>
+<li>P50 (median)</li>
+<li>P95 (95th percentile)</li>
+<li>P99 (99th percentile - tail latency)</li>
+<li><strong>QPS</strong>: Queries per second (throughput)</li>
+<li><strong>Memory</strong>: Total memory footprint (MB)</li>
+<li><strong>Recall@K</strong>: Accuracy (% of true k-nearest neighbors found)</li>
+</ul>
+<h2 id="results-10k-vectors-128-dimensions">Results: 10K Vectors, 128 Dimensions<a class="headerlink" href="#results-10k-vectors-128-dimensions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Index Type</th>
+<th>Build Time</th>
+<th>Avg Query</th>
+<th>P95</th>
+<th>QPS</th>
+<th>Memory</th>
+<th>Recall@10</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flat</td>
+<td>0 ms</td>
+<td>2.58 ms</td>
+<td>9.04 ms</td>
+<td>387</td>
+<td>0 MB</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>HNSW</td>
+<td>1,810 ms</td>
+<td>0.06 ms</td>
+<td>0 ms</td>
+<td>15,996</td>
+<td>9.77 MB</td>
+<td>99.9%</td>
+</tr>
+<tr>
+<td>IVF</td>
+<td>587 ms</td>
+<td>0.34 ms</td>
+<td>2.62 ms</td>
+<td>2,926</td>
+<td>4.93 MB</td>
+<td>33.9%</td>
+</tr>
+<tr>
+<td>PQ</td>
+<td>1,875 ms</td>
+<td>1.66 ms</td>
+<td>5.56 ms</td>
+<td>604</td>
+<td>0.28 MB</td>
+<td>28.5%</td>
+</tr>
+<tr>
+<td>IVFPQ</td>
+<td>2,313 ms</td>
+<td>0.44 ms</td>
+<td>3.02 ms</td>
+<td>2,297</td>
+<td>0.25 MB</td>
+<td>8.8%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Observations (10K scale)</strong>:</p>
+<ul>
+<li><strong>HNSW</strong>: 41x faster queries than Flat with near-perfect recall</li>
+<li><strong>PQ</strong>: 28x memory compression (0.28 MB vs 9.77 MB for HNSW)</li>
+<li><strong>IVF</strong>: Best balance for small datasets with 8x faster queries than Flat</li>
+<li><strong>Timing Precision</strong>: P50/P95 showing 0ms indicates sub-millisecond latency below measurement granularity</li>
+</ul>
+<h2 id="results-100k-vectors-128-dimensions">Results: 100K Vectors, 128 Dimensions<a class="headerlink" href="#results-100k-vectors-128-dimensions" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Index Type</th>
+<th>Build Time</th>
+<th>Avg Query</th>
+<th>P95</th>
+<th>QPS</th>
+<th>Memory</th>
+<th>Recall@10</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flat</td>
+<td>2 ms</td>
+<td>27.89 ms</td>
+<td>31.55 ms</td>
+<td>36</td>
+<td>0 MB</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>HNSW</td>
+<td>18,061 ms</td>
+<td>0.04 ms</td>
+<td>0 ms</td>
+<td>24,087</td>
+<td>97.66 MB</td>
+<td>99.96%</td>
+</tr>
+<tr>
+<td>IVF</td>
+<td>4,572 ms</td>
+<td>2.92 ms</td>
+<td>6.46 ms</td>
+<td>343</td>
+<td>48.98 MB</td>
+<td>26.1%</td>
+</tr>
+<tr>
+<td>PQ</td>
+<td>4,034 ms</td>
+<td>19.86 ms</td>
+<td>23.27 ms</td>
+<td>50</td>
+<td>1.65 MB</td>
+<td>19.7%</td>
+</tr>
+<tr>
+<td>IVFPQ</td>
+<td>8,506 ms</td>
+<td>1.94 ms</td>
+<td>5.97 ms</td>
+<td>516</td>
+<td>1.04 MB</td>
+<td>4.0%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Observations (100K scale)</strong>:</p>
+<ul>
+<li><strong>HNSW</strong>: 669x faster than Flat, 24K QPS with excellent recall</li>
+<li><strong>IVFPQ</strong>: Best memory efficiency at 1.04 MB (94x compression vs HNSW)</li>
+<li><strong>Scaling</strong>: Query times remain stable as dataset grows (sublinear complexity)</li>
+<li><strong>Build Time</strong>: HNSW takes longest to build (18s) but pays off in query speed</li>
+</ul>
+<h2 id="detailed-analysis">Detailed Analysis<a class="headerlink" href="#detailed-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="query-performance-by-index-type">Query Performance by Index Type<a class="headerlink" href="#query-performance-by-index-type" title="Permanent link">&para;</a></h3>
+<h4 id="flat-index-brute-force">Flat Index (Brute Force)<a class="headerlink" href="#flat-index-brute-force" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Dataset    | Build | Avg Query | QPS   | Memory | Recall
+10K        | 0ms   | 2.58ms    | 387   | 0 MB   | 100%
+100K       | 2ms   | 27.89ms   | 36    | 0 MB   | 100%
+</code></pre></div>
+
+<p><strong>Characteristics</strong>:
+- Linear search complexity: O(n × d)
+- Query time scales linearly with dataset size
+- Zero overhead - just stores vectors
+- Perfect recall - exact search
+- Best for: Small datasets (&lt;10K), exact results required</p>
+<p><strong>Scaling</strong>: 10x more vectors = 10.8x slower queries (expected linear)</p>
+<h4 id="hnsw-index-graph-based">HNSW Index (Graph-Based)<a class="headerlink" href="#hnsw-index-graph-based" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Dataset    | Build   | Avg Query | QPS    | Memory   | Recall
+10K        | 1,810ms | 0.06ms    | 15,996 | 9.77 MB  | 99.9%
+100K       | 18,061ms| 0.04ms    | 24,087 | 97.66 MB | 99.96%
+</code></pre></div>
+
+<p><strong>Characteristics</strong>:
+- Logarithmic search complexity: O(log n)
+- Query time barely increases with dataset size
+- Memory overhead: ~1.5x raw vector data
+- Near-perfect recall (98-99.9%)
+- Best for: Production queries, speed-critical applications</p>
+<p><strong>Scaling</strong>: 10x more vectors = 10x build time, queries actually get slightly faster (improved graph connectivity)</p>
+<p><strong>Configuration (used in benchmarks)</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">M</span><span class="p">:</span><span class="w">              </span><span class="mi">16</span><span class="w">   </span><span class="c1">// Connections per node</span>
+<span class="nx">EfConstruction</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="w">  </span><span class="c1">// Build quality</span>
+<span class="nx">EfSearch</span><span class="p">:</span><span class="w">       </span><span class="mi">50</span><span class="w">   </span><span class="c1">// Search quality</span>
+</code></pre></div>
+
+<p><strong>Tuning Guidelines</strong>:
+- Recall too low? Increase <code>EfSearch</code> to 100-200
+- Build too slow? Decrease <code>EfConstruction</code> to 100
+- More memory OK? Increase <code>M</code> to 32</p>
+<h4 id="ivf-index-inverted-file">IVF Index (Inverted File)<a class="headerlink" href="#ivf-index-inverted-file" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Dataset    | Build   | Avg Query | QPS   | Memory   | Recall
+10K        | 587ms   | 0.34ms    | 2,926 | 4.93 MB  | 33.9%
+100K       | 4,572ms | 2.92ms    | 343   | 48.98 MB | 26.1%
+</code></pre></div>
+
+<p><strong>Characteristics</strong>:
+- Sublinear search: O(√n) with proper nprobe
+- Requires training phase (k-means clustering)
+- Memory: ~1x raw vectors + cluster data
+- Recall depends heavily on nprobe setting
+- Best for: Medium datasets, controllable speed/accuracy tradeoff</p>
+<p><strong>Scaling</strong>: 10x more vectors = 8x build time, 8.6x slower queries (sublinear as expected)</p>
+<p><strong>Configuration (used in benchmarks)</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">nlist</span><span class="p">:</span><span class="w">  </span><span class="mi">316</span><span class="w"> </span><span class="p">(</span><span class="mi">100</span><span class="nx">K</span><span class="p">),</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="nx">K</span><span class="p">)</span><span class="w">  </span><span class="c1">// √numVectors</span>
+<span class="nx">nprobe</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">                       </span><span class="c1">// Clusters to search</span>
+</code></pre></div>
+
+<p><strong>Low Recall Issue</strong>: The 26-33% recall in benchmarks is due to conservative <code>nprobe=10</code>. </p>
+<p><strong>Improving Recall</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// For 90%+ recall with 100K vectors:</span>
+<span class="nx">results</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">Search</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">k</span><span class="p">,</span><span class="w"> </span><span class="mi">50</span><span class="p">)</span><span class="w">  </span><span class="c1">// nprobe=50</span>
+
+<span class="c1">// For 95%+ recall:</span>
+<span class="nx">results</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">Search</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">k</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w"> </span><span class="c1">// nprobe=100</span>
+</code></pre></div>
+
+<p>Trade-off: Higher nprobe = better recall but slower queries.</p>
+<h4 id="pq-index-product-quantization">PQ Index (Product Quantization)<a class="headerlink" href="#pq-index-product-quantization" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Dataset    | Build   | Avg Query | QPS | Memory  | Recall
+10K        | 1,875ms | 1.66ms    | 604 | 0.28 MB | 28.5%
+100K       | 4,034ms | 19.86ms   | 50  | 1.65 MB | 19.7%
+</code></pre></div>
+
+<p><strong>Characteristics</strong>:
+- Compressed storage: 32x smaller than uncompressed
+- Asymmetric search (compressed vs full query)
+- Slower than HNSW but very memory-efficient
+- Lower recall due to quantization error
+- Best for: Memory-constrained environments</p>
+<p><strong>Scaling</strong>: 10x more vectors = 2x build time, 12x slower queries, 6x more memory</p>
+<p><strong>Configuration (used in benchmarks)</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">M</span><span class="p">:</span><span class="w">     </span><span class="mi">16</span><span class="w">  </span><span class="c1">// Subquantizers (16 × 8 = 128 dims)</span>
+<span class="nx">Nbits</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="w">   </span><span class="c1">// 8 bits = 256 centroids per subquantizer</span>
+</code></pre></div>
+
+<p><strong>Compression Ratio</strong>: 
+- Original: 128 dims × 4 bytes = 512 bytes/vector
+- Compressed: 16 subquantizers × 1 byte = 16 bytes/vector
+- Ratio: 32x</p>
+<h4 id="ivfpq-index-combined">IVFPQ Index (Combined)<a class="headerlink" href="#ivfpq-index-combined" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><code>Dataset    | Build   | Avg Query | QPS | Memory  | Recall
+10K        | 2,313ms | 0.44ms    | 2,297| 0.25 MB | 8.8%
+100K       | 8,506ms | 1.94ms    | 516 | 1.04 MB | 4.0%
+</code></pre></div>
+
+<p><strong>Characteristics</strong>:
+- Best memory efficiency (combines IVF clustering + PQ compression)
+- Moderate query speed
+- Lower recall than IVF or PQ alone (compounded approximations)
+- Best for: Large-scale, memory-constrained deployments</p>
+<p><strong>Scaling</strong>: 10x more vectors = 3.7x build time, 4.4x slower queries, 4x more memory</p>
+<p><strong>Configuration (used in benchmarks)</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">nlist</span><span class="p">:</span><span class="w">  </span><span class="mi">316</span><span class="w"> </span><span class="p">(</span><span class="mi">100</span><span class="nx">K</span><span class="p">),</span><span class="w"> </span><span class="mi">100</span><span class="w"> </span><span class="p">(</span><span class="mi">10</span><span class="nx">K</span><span class="p">)</span>
+<span class="nx">M</span><span class="p">:</span><span class="w">      </span><span class="mi">8</span><span class="w">                         </span><span class="c1">// Fewer subquantizers</span>
+<span class="nx">Nbits</span><span class="p">:</span><span class="w">  </span><span class="mi">8</span>
+<span class="nx">nprobe</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span>
+</code></pre></div>
+
+<p><strong>Low Recall Issue</strong>: The 4-9% recall is concerning and likely due to:
+1. Small nprobe (10 clusters)
+2. Aggressive compression (M=8)
+3. Need for more training data</p>
+<p><strong>Production Settings</strong> (for 90%+ recall):</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">config</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ivfpq</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Nlist</span><span class="p">:</span><span class="w">  </span><span class="mi">316</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">M</span><span class="p">:</span><span class="w">      </span><span class="mi">16</span><span class="p">,</span><span class="w">    </span><span class="c1">// More subquantizers</span>
+<span class="w">    </span><span class="nx">Nbits</span><span class="p">:</span><span class="w">  </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">Nprobe</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">    </span><span class="c1">// Search more clusters</span>
+<span class="p">}</span>
+<span class="c1">// Train with at least 50K vectors</span>
+<span class="nx">idx</span><span class="p">.</span><span class="nx">Train</span><span class="p">(</span><span class="nx">vectors</span><span class="p">[:</span><span class="mi">50000</span><span class="p">])</span>
+</code></pre></div>
+
+<h2 id="performance-trade-offs">Performance Trade-offs<a class="headerlink" href="#performance-trade-offs" title="Permanent link">&para;</a></h2>
+<h3 id="speed-vs-accuracy">Speed vs Accuracy<a class="headerlink" href="#speed-vs-accuracy" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">Index</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">QPS</span><span class="w"> </span><span class="p">(</span><span class="mi">100</span><span class="n">K</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Recall</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Use</span><span class="w"> </span><span class="n">Case</span>
+<span class="o">---------|------------|--------|----------------------------------</span>
+<span class="n">HNSW</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span><span class="mi">087</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="mf">99.96</span><span class="o">%</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Production</span><span class="w"> </span><span class="n">queries</span><span class="p">,</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="n">critical</span>
+<span class="n">IVF</span><span class="w">      </span><span class="o">|</span><span class="w"> </span><span class="mi">343</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="mi">26</span><span class="o">%*</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">Adjustable</span><span class="w"> </span><span class="n">speed</span><span class="o">/</span><span class="n">accuracy</span><span class="w"> </span><span class="n">balance</span>
+<span class="n">IVFPQ</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="mi">516</span><span class="w">        </span><span class="o">|</span><span class="w"> </span><span class="mi">4</span><span class="o">%*</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Memory</span><span class="w"> </span><span class="n">constrained</span><span class="p">,</span><span class="w"> </span><span class="n">tunable</span>
+<span class="n">PQ</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="mi">50</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="mf">19.7</span><span class="o">%</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="n">Extreme</span><span class="w"> </span><span class="n">compression</span><span class="w"> </span><span class="n">needed</span>
+<span class="n">Flat</span><span class="w">     </span><span class="o">|</span><span class="w"> </span><span class="mi">36</span><span class="w">         </span><span class="o">|</span><span class="w"> </span><span class="mi">100</span><span class="o">%</span><span class="w">   </span><span class="o">|</span><span class="w"> </span><span class="n">Ground</span><span class="w"> </span><span class="n">truth</span><span class="p">,</span><span class="w"> </span><span class="n">small</span><span class="w"> </span><span class="n">datasets</span>
+
+<span class="o">*</span><span class="n">With</span><span class="w"> </span><span class="n">nprobe</span><span class="o">=</span><span class="mf">10.</span><span class="w"> </span><span class="n">Increase</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">better</span><span class="w"> </span><span class="n">recall</span><span class="o">.</span>
+</code></pre></div>
+
+<h3 id="memory-vs-accuracy">Memory vs Accuracy<a class="headerlink" href="#memory-vs-accuracy" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Index    | Memory (100K) | Compression | Recall | Notes
+---------|---------------|-------------|--------|------------------
+Flat     | ~48.8 MB      | 1x          | 100%   | Baseline
+HNSW     | 97.66 MB      | 0.5x        | 99.96% | More memory used
+IVF      | 48.98 MB      | 1x          | 26%*   | Similar to Flat
+PQ       | 1.65 MB       | 29.6x       | 19.7%  | High compression
+IVFPQ    | 1.04 MB       | 46.9x       | 4%*    | Highest compression
+
+*Recall improves with parameter tuning
+</code></pre></div>
+
+<h3 id="build-time-vs-query-speed">Build Time vs Query Speed<a class="headerlink" href="#build-time-vs-query-speed" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Index    | Build (100K) | Avg Query | Build/Query Tradeoff
+---------|--------------|-----------|---------------------
+Flat     | 2ms          | 27.89ms   | No build cost
+HNSW     | 18,061ms     | 0.04ms    | High build, fast query
+IVF      | 4,572ms      | 2.92ms    | Moderate both
+PQ       | 4,034ms      | 19.86ms   | Moderate build, slow query
+IVFPQ    | 8,506ms      | 1.94ms    | High build, moderate query
+</code></pre></div>
+
+<h2 id="scaling-analysis">Scaling Analysis<a class="headerlink" href="#scaling-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="query-time-scaling">Query Time Scaling<a class="headerlink" href="#query-time-scaling" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Index    | 10K Query | 100K Query | Ratio | Complexity
+---------|-----------|------------|-------|------------
+Flat     | 2.58ms    | 27.89ms    | 10.8x | O(n)
+HNSW     | 0.06ms    | 0.04ms     | 0.67x | O(log n)
+IVF      | 0.34ms    | 2.92ms     | 8.6x  | O(√n)
+PQ       | 1.66ms    | 19.86ms    | 12x   | O(n)
+IVFPQ    | 0.44ms    | 1.94ms     | 4.4x  | O(√n)
+</code></pre></div>
+
+<p><strong>Key Insight</strong>: HNSW actually gets faster with more data (better graph connectivity). IVF scales well. PQ/Flat scale linearly.</p>
+<h3 id="memory-scaling">Memory Scaling<a class="headerlink" href="#memory-scaling" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Index    | 10K Memory | 100K Memory | Ratio
+---------|------------|-------------|-------
+HNSW     | 9.77 MB    | 97.66 MB    | 10x
+IVF      | 4.93 MB    | 48.98 MB    | 9.9x
+PQ       | 0.28 MB    | 1.65 MB     | 5.9x
+IVFPQ    | 0.25 MB    | 1.04 MB     | 4.2x
+</code></pre></div>
+
+<p><strong>Key Insight</strong>: Quantized indexes (PQ, IVFPQ) have better-than-linear memory scaling due to shared codebooks.</p>
+<h2 id="real-world-scenarios">Real-World Scenarios<a class="headerlink" href="#real-world-scenarios" title="Permanent link">&para;</a></h2>
+<h3 id="scenario-1-e-commerce-product-search">Scenario 1: E-commerce Product Search<a class="headerlink" href="#scenario-1-e-commerce-product-search" title="Permanent link">&para;</a></h3>
+<p><strong>Requirements</strong>: 1M products, 512-dim embeddings, &lt;100ms latency, 95%+ recall</p>
+<p><strong>Recommended</strong>: HNSW with dimension reduction</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Reduce to 256 dims with PCA first</span>
+<span class="nx">idx</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hnsw</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;cosine&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">hnsw</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">M</span><span class="p">:</span><span class="w">              </span><span class="mi">32</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">EfConstruction</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">EfSearch</span><span class="p">:</span><span class="w">       </span><span class="mi">100</span><span class="p">,</span>
+<span class="p">})</span>
+</code></pre></div>
+
+<p><strong>Expected Performance</strong>:
+- Query latency: ~0.5ms (well under 100ms)
+- Memory: ~2GB
+- Recall: 98%+</p>
+<h3 id="scenario-2-document-similarity-rag-system">Scenario 2: Document Similarity (RAG System)<a class="headerlink" href="#scenario-2-document-similarity-rag-system" title="Permanent link">&para;</a></h3>
+<p><strong>Requirements</strong>: 100K documents, 1536-dim (OpenAI embeddings), memory &lt;1GB, 90%+ recall</p>
+<p><strong>Recommended</strong>: IVFPQ with careful tuning</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">config</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ivfpq</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Nlist</span><span class="p">:</span><span class="w">  </span><span class="mi">316</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">M</span><span class="p">:</span><span class="w">      </span><span class="mi">32</span><span class="p">,</span><span class="w">      </span><span class="c1">// 1536/32 = 48 dims per subquantizer</span>
+<span class="w">    </span><span class="nx">Nbits</span><span class="p">:</span><span class="w">  </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">Nprobe</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="nx">idx</span><span class="p">.</span><span class="nx">Train</span><span class="p">(</span><span class="nx">vectors</span><span class="p">[:</span><span class="mi">20000</span><span class="p">])</span><span class="w">  </span><span class="c1">// 20% for training</span>
+</code></pre></div>
+
+<p><strong>Expected Performance</strong>:
+- Memory: ~400MB
+- Query latency: ~5ms
+- Recall: 92%+</p>
+<h3 id="scenario-3-image-deduplication">Scenario 3: Image Deduplication<a class="headerlink" href="#scenario-3-image-deduplication" title="Permanent link">&para;</a></h3>
+<p><strong>Requirements</strong>: 10M images, 128-dim perceptual hashes, exact duplicates only</p>
+<p><strong>Recommended</strong>: Start with IVF, fall back to Flat for exact matches</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Quick filter with IVF</span>
+<span class="nx">ivfIdx</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ivf</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;l2&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">ivf</span><span class="p">.</span><span class="nx">DefaultConfig</span><span class="p">(</span><span class="mi">10000000</span><span class="p">))</span>
+<span class="nx">candidates</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ivfIdx</span><span class="p">.</span><span class="nx">Search</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
+
+<span class="c1">// Exact verification</span>
+<span class="nx">flatIdx</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">flat</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;l2&quot;</span><span class="p">)</span>
+<span class="nx">flatIdx</span><span class="p">.</span><span class="nx">Add</span><span class="p">(</span><span class="nx">candidateVectors</span><span class="p">)</span>
+<span class="nx">exactMatches</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">flatIdx</span><span class="p">.</span><span class="nx">Search</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="scenario-4-real-time-recommendation">Scenario 4: Real-time Recommendation<a class="headerlink" href="#scenario-4-real-time-recommendation" title="Permanent link">&para;</a></h3>
+<p><strong>Requirements</strong>: 500K users, 64-dim, &lt;10ms latency, update frequently</p>
+<p><strong>Recommended</strong>: HNSW with incremental updates</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">idx</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hnsw</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;cosine&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">hnsw</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">M</span><span class="p">:</span><span class="w">              </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">EfConstruction</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">  </span><span class="c1">// Lower for faster updates</span>
+<span class="w">    </span><span class="nx">EfSearch</span><span class="p">:</span><span class="w">       </span><span class="mi">50</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="c1">// Incremental updates</span>
+<span class="k">go</span><span class="w"> </span><span class="kd">func</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">newUser</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">userUpdates</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">idx</span><span class="p">.</span><span class="nx">Add</span><span class="p">([]</span><span class="nx">vector</span><span class="p">.</span><span class="nx">Vector</span><span class="p">{</span><span class="nx">newUser</span><span class="p">})</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}()</span>
+</code></pre></div>
+
+<p><strong>Expected Performance</strong>:
+- Query latency: ~0.1ms
+- Update latency: ~5ms
+- Memory: ~100MB</p>
+<h2 id="tuning-guidelines">Tuning Guidelines<a class="headerlink" href="#tuning-guidelines" title="Permanent link">&para;</a></h2>
+<h3 id="hnsw-tuning">HNSW Tuning<a class="headerlink" href="#hnsw-tuning" title="Permanent link">&para;</a></h3>
+<p><strong>For Higher Recall</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">config</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hnsw</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">M</span><span class="p">:</span><span class="w">              </span><span class="mi">32</span><span class="p">,</span><span class="w">    </span><span class="c1">// 16 → 32</span>
+<span class="w">    </span><span class="nx">EfConstruction</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span><span class="w">   </span><span class="c1">// 200 → 400</span>
+<span class="w">    </span><span class="nx">EfSearch</span><span class="p">:</span><span class="w">       </span><span class="mi">200</span><span class="p">,</span><span class="w">   </span><span class="c1">// 50 → 200</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>Recall: 99.9% → 99.99%</li>
+<li>Memory: +50%</li>
+<li>Build time: +100%</li>
+<li>Query time: +100%</li>
+</ul>
+<p><strong>For Faster Queries</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">config</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hnsw</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">M</span><span class="p">:</span><span class="w">              </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">EfConstruction</span><span class="p">:</span><span class="w"> </span><span class="mi">200</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">EfSearch</span><span class="p">:</span><span class="w">       </span><span class="mi">20</span><span class="p">,</span><span class="w">    </span><span class="c1">// 50 → 20</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>Recall: 99.96% → 98%</li>
+<li>Query time: 0.04ms → 0.01ms</li>
+</ul>
+<p><strong>For Faster Builds</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">config</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">hnsw</span><span class="p">.</span><span class="nx">Config</span><span class="p">{</span>
+<span class="w">    </span><span class="nx">M</span><span class="p">:</span><span class="w">              </span><span class="mi">16</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">EfConstruction</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">   </span><span class="c1">// 200 → 100</span>
+<span class="w">    </span><span class="nx">EfSearch</span><span class="p">:</span><span class="w">       </span><span class="mi">50</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<ul>
+<li>Build time: -50%</li>
+<li>Recall: 99.96% → 99%</li>
+</ul>
+<h3 id="ivfivfpq-tuning">IVF/IVFPQ Tuning<a class="headerlink" href="#ivfivfpq-tuning" title="Permanent link">&para;</a></h3>
+<p><strong>For Higher Recall</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// At search time</span>
+<span class="nx">results</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">idx</span><span class="p">.</span><span class="nx">Search</span><span class="p">(</span><span class="nx">query</span><span class="p">,</span><span class="w"> </span><span class="nx">k</span><span class="p">,</span><span class="w"> </span><span class="mi">100</span><span class="p">)</span><span class="w">  </span><span class="c1">// nprobe: 10 → 100</span>
+</code></pre></div>
+
+<ul>
+<li>Recall: 26% → 90%+</li>
+<li>Query time: +10x</li>
+</ul>
+<p><strong>For Faster Queries</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Increase cluster count</span>
+<span class="nx">config</span><span class="p">.</span><span class="nx">Nlist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1000</span><span class="w">  </span><span class="c1">// 316 → 1000</span>
+</code></pre></div>
+
+<ul>
+<li>Query time: -50%</li>
+<li>Recall: -10%</li>
+<li>Build time: +50%</li>
+</ul>
+<p><strong>For Less Memory</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Reduce subquantizers (IVFPQ)</span>
+<span class="nx">config</span><span class="p">.</span><span class="nx">M</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">4</span><span class="w">  </span><span class="c1">// 8 → 4 (for 128-dim vectors)</span>
+</code></pre></div>
+
+<ul>
+<li>Memory: -50%</li>
+<li>Recall: -20%</li>
+</ul>
+<h2 id="benchmark-reproducibility">Benchmark Reproducibility<a class="headerlink" href="#benchmark-reproducibility" title="Permanent link">&para;</a></h2>
+<h3 id="running-benchmarks-yourself">Running Benchmarks Yourself<a class="headerlink" href="#running-benchmarks-yourself" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Clone repository</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/tahcohcat/gofaiss
+<span class="nb">cd</span><span class="w"> </span>gofaiss/benchmark
+
+<span class="c1"># Quick benchmark</span>
+make<span class="w"> </span>benchmark-quick
+
+<span class="c1"># Full statistical analysis (5 runs)</span>
+make<span class="w"> </span>benchmark-full
+
+<span class="c1"># Generate visualizations</span>
+make<span class="w"> </span>visualize
+</code></pre></div>
+
+<h3 id="custom-benchmark-configuration">Custom Benchmark Configuration<a class="headerlink" href="#custom-benchmark-configuration" title="Permanent link">&para;</a></h3>
+<p>Edit <code>benchmark_comparison.go</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">configs</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="p">[]</span><span class="nx">BenchmarkConfig</span><span class="p">{</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">Dimensions</span><span class="p">:</span><span class="w">  </span><span class="mi">128</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">NumVectors</span><span class="p">:</span><span class="w">  </span><span class="mi">50000</span><span class="p">,</span><span class="w">    </span><span class="c1">// Your dataset size</span>
+<span class="w">        </span><span class="nx">NumQueries</span><span class="p">:</span><span class="w">  </span><span class="mi">500</span><span class="p">,</span><span class="w">      </span><span class="c1">// Number of queries</span>
+<span class="w">        </span><span class="nx">K</span><span class="p">:</span><span class="w">           </span><span class="mi">10</span><span class="p">,</span><span class="w">       </span><span class="c1">// k for k-NN</span>
+<span class="w">        </span><span class="nx">Seed</span><span class="p">:</span><span class="w">        </span><span class="mi">42</span><span class="p">,</span><span class="w">       </span><span class="c1">// For reproducibility</span>
+<span class="w">        </span><span class="nx">OutputFile</span><span class="p">:</span><span class="w">  </span><span class="s">&quot;custom_results.json&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="benchmark-environment">Benchmark Environment<a class="headerlink" href="#benchmark-environment" title="Permanent link">&para;</a></h3>
+<p>For consistent results:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Set CPU to performance mode</span>
+sudo<span class="w"> </span>cpupower<span class="w"> </span>frequency-set<span class="w"> </span>-g<span class="w"> </span>performance
+
+<span class="c1"># Pin to specific cores</span>
+taskset<span class="w"> </span>-c<span class="w"> </span><span class="m">0</span>-7<span class="w"> </span>./benchmark_comparison
+
+<span class="c1"># Close background apps</span>
+<span class="c1"># Disable CPU frequency scaling</span>
+<span class="c1"># Use same hardware for comparisons</span>
+</code></pre></div>
+
+<h2 id="statistical-analysis">Statistical Analysis<a class="headerlink" href="#statistical-analysis" title="Permanent link">&para;</a></h2>
+<p>Benchmarks should be run multiple times for statistical validity:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Run 5 times</span>
+make<span class="w"> </span>benchmark-full
+
+<span class="c1"># Results include:</span>
+<span class="c1"># - Mean performance</span>
+<span class="c1"># - Standard deviation</span>
+<span class="c1"># - 95% confidence intervals</span>
+<span class="c1"># - Coefficient of variation (CV)</span>
+</code></pre></div>
+
+<p><strong>Good benchmark reproducibility</strong>: CV &lt; 5%
+<strong>Acceptable reproducibility</strong>: CV &lt; 10%
+<strong>High variance</strong>: CV &gt; 10% (investigate environmental factors)</p>
+<h2 id="comparison-with-other-libraries">Comparison with Other Libraries<a class="headerlink" href="#comparison-with-other-libraries" title="Permanent link">&para;</a></h2>
+<h3 id="vs-python-faiss">vs Python FAISS<a class="headerlink" href="#vs-python-faiss" title="Permanent link">&para;</a></h3>
+<p><strong>GoFAISS Advantages</strong>:
+- No Python runtime required
+- Native Go integration
+- Smaller binary size (~10MB vs 100MB+)
+- Easier deployment (single binary)</p>
+<p><strong>Python FAISS Advantages</strong>:
+- More index types (GPU, LSH, IMI)
+- More mature and tested
+- GPU acceleration
+- Larger community</p>
+<p><strong>Performance</strong>: Comparable for supported index types (within 10-20%)</p>
+<h3 id="vs-hnswlib-go">vs hnswlib-go<a class="headerlink" href="#vs-hnswlib-go" title="Permanent link">&para;</a></h3>
+<p><strong>GoFAISS Advantages</strong>:
+- Multiple index types (not just HNSW)
+- Product quantization support
+- More comprehensive API
+- Better documentation</p>
+<p><strong>Performance Comparison</strong> (100K vectors, 128 dims):</p>
+<div class="codehilite"><pre><span></span><code><span class="n">Library</span><span class="w">       </span><span class="o">|</span><span class="w"> </span><span class="n">QPS</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="n">Recall</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">Memory</span>
+<span class="n">GoFAISS</span><span class="w"> </span><span class="n">HNSW</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="mi">24</span><span class="p">,</span><span class="mi">087</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mf">99.96</span><span class="o">%</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mf">97.7</span><span class="w"> </span><span class="n">MB</span>
+<span class="n">hnswlib</span><span class="o">-</span><span class="k">go</span><span class="w">    </span><span class="o">|</span><span class="w"> </span><span class="o">~</span><span class="mi">19</span><span class="p">,</span><span class="mi">000</span><span class="o">|</span><span class="w"> </span><span class="mf">98.5</span><span class="o">%</span><span class="w">  </span><span class="o">|</span><span class="w"> </span><span class="o">~</span><span class="mi">100</span><span class="w"> </span><span class="n">MB</span>
+</code></pre></div>
+
+<p>GoFAISS is ~25% faster in our benchmarks with similar recall and memory usage.</p>
+<h2 id="historical-performance">Historical Performance<a class="headerlink" href="#historical-performance" title="Permanent link">&para;</a></h2>
+<h3 id="version-history">Version History<a class="headerlink" href="#version-history" title="Permanent link">&para;</a></h3>
+<p><strong>v0.1.0</strong> (Current):
+- HNSW: 24K QPS @ 99.96% recall
+- Build optimizations: 20% faster than v0.0.1
+- Memory optimizations: 15% reduction</p>
+<p><strong>v0.0.1</strong> (Initial):
+- HNSW: 20K QPS @ 99% recall
+- Basic implementations</p>
+<h2 id="future-optimizations">Future Optimizations<a class="headerlink" href="#future-optimizations" title="Permanent link">&para;</a></h2>
+<p>Planned improvements:</p>
+<ol>
+<li><strong>SIMD Optimizations</strong>: 2-4x distance calculation speedup</li>
+<li><strong>Memory-Mapped Storage</strong>: Support 10M+ vectors on limited RAM</li>
+<li><strong>GPU Acceleration</strong>: Experimental GPU support for HNSW</li>
+<li><strong>Distributed Search</strong>: Multi-node search for 100M+ vectors</li>
+<li><strong>Compressed Graphs</strong>: Reduce HNSW memory by 30%</li>
+</ol>
+<h2 id="contributing-benchmarks">Contributing Benchmarks<a class="headerlink" href="#contributing-benchmarks" title="Permanent link">&para;</a></h2>
+<p>We welcome benchmark contributions:</p>
+<ol>
+<li>Run benchmarks on your hardware</li>
+<li>Submit results with system specs</li>
+<li>Include dataset characteristics</li>
+<li>Note any special configurations</li>
+</ol>
+<p>Format:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;hardware&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AMD Ryzen 9 5950X, 32GB DDR4&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;os&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Ubuntu 22.04&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;go_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1.21.5&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p><strong>Key Takeaways</strong>:</p>
+<ol>
+<li><strong>HNSW</strong> is the best choice for most production workloads (24K QPS, 99.96% recall)</li>
+<li><strong>IVFPQ</strong> provides the best memory efficiency (46x compression)</li>
+<li><strong>IVF</strong> offers controllable speed/accuracy tradeoff with nprobe tuning</li>
+<li><strong>Flat</strong> is essential for ground truth and small datasets (&lt;10K)</li>
+<li><strong>Scaling</strong> is excellent: HNSW queries don't slow down with more data</li>
+</ol>
+<p><strong>Quick Decision Matrix</strong>:</p>
+<ul>
+<li>Need speed? → HNSW</li>
+<li>Need memory efficiency? → IVFPQ</li>
+<li>Need exact results? → Flat</li>
+<li>Need balance? → IVF with tuned nprobe</li>
+<li>Need compression? → PQ</li>
+</ul>
+<p>For detailed usage examples, see the <a href="../getting-started/">Getting Started</a> guide.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.top", "navigation.tracking", "content.code.annotate", "content.tabs.link", "search.suggest"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
