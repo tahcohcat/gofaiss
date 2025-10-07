@@ -1,0 +1,42 @@
+site_name: gofaiss
+site_description: "A Go-native, dependency-free vector search engine inspired by FAISS"
+site_url: https://tahcohcat.github.io/gofaiss
+repo_url: https://github.com/tahcohcat/gofaiss
+repo_name: tahcohcat/gofaiss
+
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.top
+    - navigation.tracking
+    - content.code.annotate
+    - content.tabs.link
+    - search.suggest
+  palette:
+    - scheme: default
+      primary: blue
+      accent: cyan
+    - scheme: slate
+      primary: blue
+      accent: cyan
+  icon:
+    repo: fontawesome/brands/github
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - toc:
+      permalink: true
+  - tables
+  - def_list
+  - attr_list
+  - md_in_html
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Architecture: architecture.md
+  - Benchmarks: benchmarks.md
+  - Roadmap: roadmap.md

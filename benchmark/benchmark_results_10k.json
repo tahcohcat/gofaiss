@@ -1,0 +1,99 @@
+[
+  {
+    "Library": "GoFAISS",
+    "IndexType": "Flat",
+    "BuildTimeMs": 0,
+    "AvgQueryMs": 2.5845299999999995,
+    "P50QueryMs": 2.217,
+    "P95QueryMs": 9.038,
+    "P99QueryMs": 10.25,
+    "QPS": 386.86560327628746,
+    "MemoryMB": 0,
+    "Recall": 1,
+    "NumVectors": 10000,
+    "Dimension": 128,
+    "IndexParams": {
+      "metric": "l2"
+    },
+    "Timestamp": "2025-10-07T11:12:30.6265799+01:00"
+  },
+  {
+    "Library": "GoFAISS",
+    "IndexType": "HNSW",
+    "BuildTimeMs": 1810,
+    "AvgQueryMs": 0.062490000000000004,
+    "P50QueryMs": 0,
+    "P95QueryMs": 0,
+    "P99QueryMs": 3.552,
+    "QPS": 15995.64918342211,
+    "MemoryMB": 9.765625,
+    "Recall": 0.001,
+    "NumVectors": 10000,
+    "Dimension": 128,
+    "IndexParams": {
+      "M": 16,
+      "efConstruction": 200,
+      "efSearch": 50
+    },
+    "Timestamp": "2025-10-07T11:12:32.4433886+01:00"
+  },
+  {
+    "Library": "GoFAISS",
+    "IndexType": "IVF",
+    "BuildTimeMs": 587,
+    "AvgQueryMs": 0.34171000000000007,
+    "P50QueryMs": 0,
+    "P95QueryMs": 2.617,
+    "P99QueryMs": 4.248,
+    "QPS": 2925.687536571094,
+    "MemoryMB": 4.931640625,
+    "Recall": 0.33899999999999997,
+    "NumVectors": 10000,
+    "Dimension": 128,
+    "IndexParams": {
+      "nlist": 100,
+      "nprobe": 10
+    },
+    "Timestamp": "2025-10-07T11:12:33.1020723+01:00"
+  },
+  {
+    "Library": "GoFAISS",
+    "IndexType": "PQ",
+    "BuildTimeMs": 1875,
+    "AvgQueryMs": 1.6559699999999997,
+    "P50QueryMs": 1.039,
+    "P95QueryMs": 5.562,
+    "P99QueryMs": 8.028,
+    "QPS": 603.777594900253,
+    "MemoryMB": 0.277587890625,
+    "Recall": 0.285,
+    "NumVectors": 10000,
+    "Dimension": 128,
+    "IndexParams": {
+      "M": 16,
+      "Nbits": 8
+    },
+    "Timestamp": "2025-10-07T11:12:35.3411546+01:00"
+  },
+  {
+    "Library": "GoFAISS",
+    "IndexType": "IVFPQ",
+    "BuildTimeMs": 2313,
+    "AvgQueryMs": 0.43510999999999994,
+    "P50QueryMs": 0,
+    "P95QueryMs": 3.016,
+    "P99QueryMs": 5.511,
+    "QPS": 2297.4298652097896,
+    "MemoryMB": 0.2501220703125,
+    "Recall": 0.08799999999999991,
+    "NumVectors": 10000,
+    "Dimension": 128,
+    "IndexParams": {
+      "M": 8,
+      "Nbits": 8,
+      "nlist": 100,
+      "nprobe": 10
+    },
+    "Timestamp": "2025-10-07T11:12:37.7431238+01:00"
+  }
+]

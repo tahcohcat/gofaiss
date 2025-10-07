@@ -2,6 +2,7 @@
 
 A pure Go implementation of Facebook's FAISS (Facebook AI Similarity Search) library for efficient similarity search and clustering of dense vectors.
 
+
 ## Features
 
 - **Multiple Index Types**
