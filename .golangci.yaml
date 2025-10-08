@@ -10,7 +10,7 @@ linters:
   enable:
     - govet
     - staticcheck
-    - shadow   # replaces the old govet.check-shadowing
+    - deadcode
     - gofumpt
     - gosimple
     - errcheck
