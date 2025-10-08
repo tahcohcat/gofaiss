@@ -1,7 +1,4 @@
 linters-settings:
-  govet:
-    # removed "check-shadowing" (use shadow linter instead)
-    # you can keep other govet settings here if needed
   staticcheck:
     checks: ["all"]
 
