@@ -6,9 +6,9 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
-	"github.com/chewxy/hnsw"
 	"github.com/tahcohcat/gofaiss/pkg/index/flat"
 	gofaiss_hnsw "github.com/tahcohcat/gofaiss/pkg/index/hnsw"
 	"github.com/tahcohcat/gofaiss/pkg/index/ivf"
@@ -121,10 +121,6 @@ func runBenchmark(config BenchmarkConfig) {
 	// GoFAISS - IVFPQ
 	fmt.Println("Benchmarking GoFAISS IVFPQ...")
 	results = append(results, benchmarkGoFAISSIVFPQ(dataset, config))
-
-	// hnswlib-go
-	fmt.Println("Benchmarking hnswlib-go...")
-	results = append(results, benchmarkHNSWLib(dataset, config))
 
 	// Print results
 	printResultsTable(results)
@@ -401,79 +397,6 @@ func benchmarkGoFAISSIVFPQ(dataset Dataset, config BenchmarkConfig) BenchmarkRes
 	}
 }
 
-func benchmarkHNSWLib(dataset Dataset, config BenchmarkConfig) BenchmarkResult {
-	M := 16
-	efConstruction := 200
-	efSearch := 50
-
-	buildStart := time.Now()
-	idx := hnsw.New(M, efConstruction, func(a, b interface{}) float32 {
-		va := a.([]float32)
-		vb := b.([]float32)
-		var sum float32
-		for i := range va {
-			diff := va[i] - vb[i]
-			sum += diff * diff
-		}
-		return sum
-	})
-
-	for i, v := range dataset.Vectors {
-		idx.Add(v.Data, uint32(i))
-	}
-	buildTime := time.Since(buildStart)
-
-	// Set efSearch
-	idx.SetEf(efSearch)
-
-	queryTimes := benchmarkSearch(func(query []float32) ([]vector.SearchResult, error) {
-		neighbors := idx.Search(query, efSearch, config.K)
-		results := make([]vector.SearchResult, len(neighbors))
-		for i, n := range neighbors {
-			results[i] = vector.SearchResult{
-				ID:       int64(n),
-				Distance: 0, // hnswlib-go doesn't return distances easily
-			}
-		}
-		return results, nil
-	}, dataset.Queries)
-
-	// Calculate recall
-	results := make([][]vector.SearchResult, len(dataset.Queries))
-	for i, query := range dataset.Queries {
-		neighbors := idx.Search(query, efSearch, config.K)
-		results[i] = make([]vector.SearchResult, len(neighbors))
-		for j, n := range neighbors {
-			results[i][j] = vector.SearchResult{ID: int64(n)}
-		}
-	}
-	recall := calculateRecall(results, dataset.GroundTruth, config.K)
-
-	// Estimate memory usage
-	memoryMB := float64(config.NumVectors*config.Dimensions*4+config.NumVectors*M*8*4) / (1024 * 1024)
-
-	return BenchmarkResult{
-		Library:     "hnswlib-go",
-		IndexType:   "HNSW",
-		BuildTimeMs: float64(buildTime.Milliseconds()),
-		AvgQueryMs:  queryTimes.avg,
-		P50QueryMs:  queryTimes.p50,
-		P95QueryMs:  queryTimes.p95,
-		P99QueryMs:  queryTimes.p99,
-		QPS:         queryTimes.qps,
-		MemoryMB:    memoryMB,
-		Recall:      recall,
-		NumVectors:  config.NumVectors,
-		Dimension:   config.Dimensions,
-		IndexParams: map[string]interface{}{
-			"M":              M,
-			"efConstruction": efConstruction,
-			"efSearch":       efSearch,
-		},
-		Timestamp: time.Now(),
-	}
-}
-
 type queryMetrics struct {
 	avg float64
 	p50 float64
@@ -571,10 +494,10 @@ func min(a, b int) int {
 }
 
 func printResultsTable(results []BenchmarkResult) {
-	fmt.Println("\n" + "=".repeat(130))
+	fmt.Println("\n" + strings.Repeat("=", 130))
 	fmt.Printf("%-15s %-10s %12s %12s %12s %12s %12s %12s %10s\n",
 		"Library", "Index", "Build(ms)", "Avg(ms)", "P95(ms)", "QPS", "Memory(MB)", "Recall@10", "Vectors")
-	fmt.Println("=".repeat(130))
+	fmt.Println(strings.Repeat("=", 130))
 
 	for _, r := range results {
 		fmt.Printf("%-15s %-10s %12.2f %12.4f %12.4f %12.0f %12.2f %10.4f %10d\n",
@@ -590,7 +513,7 @@ func printResultsTable(results []BenchmarkResult) {
 		)
 	}
 
-	fmt.Println("=".repeat(130))
+	fmt.Println(strings.Repeat("=", 130))
 
 	// Analysis
 	fmt.Println("\n=== Performance Analysis ===")

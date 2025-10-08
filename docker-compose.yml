@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # Production runtime
+  gofaiss:
+    build:
+      context: .
+      target: runtime
+    image: gofaiss:latest
+    container_name: gofaiss
+    volumes:
+      - ./data:/app/data
+      - ./indexes:/app/indexes
+    command: bench --type hnsw --vectors 10000 --dim 128
+    restart: unless-stopped
+
+  # Development environment
+  dev:
+    build:
+      context: .
+      target: development
+    image: gofaiss:dev
+    container_name: gofaiss-dev
+    volumes:
+      - .:/workspace
+      - go-mod-cache:/go/pkg/mod
+    working_dir: /workspace
+    command: bash
+    stdin_open: true
+    tty: true
+
+  # Run tests
+  test:
+    build:
+      context: .
+      target: development
+    image: gofaiss:dev
+    container_name: gofaiss-test
+    volumes:
+      - .:/workspace
+      - go-mod-cache:/go/pkg/mod
+    working_dir: /workspace
+    command: go test -v -race -coverprofile=coverage.txt ./...
+
+  # Run benchmarks
+  benchmark:
+    build:
+      context: .
+      target: development
+    image: gofaiss:dev
+    container_name: gofaiss-benchmark
+    volumes:
+      - .:/workspace
+      - go-mod-cache:/go/pkg/mod
+      - ./benchmark_results:/workspace/results
+    working_dir: /workspace
+    command: go test -bench=. -benchmem -run=^$ ./...
+
+volumes:
+  go-mod-cache:

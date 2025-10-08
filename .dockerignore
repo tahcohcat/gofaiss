@@ -1,0 +1,50 @@
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+*.md
+docs/
+site/
+
+# Build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+coverage.txt
+coverage.out
+
+# Benchmark results
+benchmark/
+benchmark_results*.json
+dataset_*.gob
+BENCHMARK_RESULTS.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Examples output
+example/*.faiss
+example/*.faiss.gz
+example/*.json
+
+# Test cache
+.cache/

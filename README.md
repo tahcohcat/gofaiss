@@ -34,9 +34,21 @@ A pure Go implementation of Facebook's FAISS (Facebook AI Similarity Search) lib
 
 ## Installation
 
+### Go Module
+
 ```bash
 go get github.com/tahcohcat/gofaiss
 ```
+
+### Docker
+
+```bash
+docker pull ghcr.io/tahcohcat/gofaiss:latest
+# Or build locally
+docker build -t gofaiss:latest .
+```
+
+See the [Docker Guide](./docs/docker.md) for detailed usage.
 
 ## Quick Start
 
