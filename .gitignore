@@ -8,6 +8,10 @@
 *.so
 *.dylib
 
+coverage.txt
+coverage.out
+*.out
+
 # Test binary, built with `go test -c`
 *.test
 
