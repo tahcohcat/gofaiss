@@ -133,10 +133,7 @@ func (s *Searcher) Stats() stats.Stats {
 	case *ivf.Index:
 		return v.Stats()
 	case *ivfpq.Index:
-		if st := v.Stats(); st != nil {
-			return stats.Stats{} // IVFPQ placeholder
-		}
-		return stats.Stats{}
+		return v.Stats()
 	default:
 		return stats.Stats{}
 	}

@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for GoFAISS
 
 # Stage 1: Build stage
-FROM golang:1.25-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
 # Install build dependencies
 RUN apk add --no-cache git make ca-certificates
@@ -62,7 +62,7 @@ ENTRYPOINT ["gofaiss"]
 CMD ["--help"]
 
 # Stage 3: Development stage (with source code)
-FROM golang:1.25-alpine AS development
+FROM golang:1.24-alpine AS development
 
 # Install development tools
 RUN apk add --no-cache git make bash curl vim
