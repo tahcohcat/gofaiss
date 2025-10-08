@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"math"
 	"testing"
+	"time"
 
 	"github.com/tahcohcat/gofaiss/pkg/storage"
 	"github.com/tahcohcat/gofaiss/pkg/vector"
@@ -221,9 +222,9 @@ func SkipIfShort(t *testing.T, reason string) {
 // MeasureTime measures execution time of a function
 func MeasureTime(t *testing.T, name string, fn func()) {
 	t.Helper()
-	start := t.Now()
+	start := time.Now()
 	fn()
-	duration := t.Since(start)
+	duration := time.Since(start)
 	t.Logf("%s took %v", name, duration)
 }
 
