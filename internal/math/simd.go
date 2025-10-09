@@ -37,24 +37,24 @@ func SimdCosineDistance(a, b []float32) float32 {
 // BatchL2DistanceSimd computes L2 distances for multiple queries with SIMD
 func BatchL2DistanceSimd(queries [][]float32, target []float32) []float32 {
 	results := make([]float32, len(queries))
-	
+
 	// Process queries in parallel-friendly blocks
 	// This could be optimized with goroutines for very large batches
 	for i, query := range queries {
 		results[i] = SimdL2Distance(query, target)
 	}
-	
+
 	return results
 }
 
 // BatchDotProductSimd computes dot products for multiple queries with SIMD
 func BatchDotProductSimd(queries [][]float32, target []float32) []float32 {
 	results := make([]float32, len(queries))
-	
+
 	for i, query := range queries {
 		results[i] = SimdDotProduct(query, target)
 	}
-	
+
 	return results
 }
 
@@ -106,7 +106,7 @@ func MatrixVectorMultiply(matrix [][]float32, vector []float32) []float32 {
 	if len(matrix) == 0 {
 		return nil
 	}
-	
+
 	result := make([]float32, len(matrix))
 	for i, row := range matrix {
 		result[i] = DotProduct(row, vector)
@@ -122,7 +122,7 @@ func PairwiseL2Distance(vectors [][]float32) [][]float32 {
 	for i := range result {
 		result[i] = make([]float32, n)
 	}
-	
+
 	for i := 0; i < n; i++ {
 		result[i][i] = 0
 		for j := i + 1; j < n; j++ {
@@ -131,7 +131,7 @@ func PairwiseL2Distance(vectors [][]float32) [][]float32 {
 			result[j][i] = dist
 		}
 	}
-	
+
 	return result
 }
 
@@ -154,15 +154,15 @@ func HasSIMDSupport() bool {
 func GetSIMDInfo() map[string]bool {
 	// TODO: Implement CPU feature detection
 	return map[string]bool{
-		"avx":     false,
-		"avx2":    false,
-		"avx512":  false,
-		"neon":    false,
-		"sse":     false,
-		"sse2":    false,
-		"sse3":    false,
-		"sse4.1":  false,
-		"sse4.2":  false,
+		"avx":    false,
+		"avx2":   false,
+		"avx512": false,
+		"neon":   false,
+		"sse":    false,
+		"sse2":   false,
+		"sse3":   false,
+		"sse4.1": false,
+		"sse4.2": false,
 	}
 }
 

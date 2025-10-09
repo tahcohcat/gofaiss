@@ -352,8 +352,7 @@ func FindClosestVector(query []float32, vectors []vector.Vector) int64 {
 }
 
 // AssertSearchAccuracy checks if search results match expected closest vectors
-func AssertSearchAccuracy(t *testing.T, query []float32, results []vector.SearchResult,
-	allVectors []vector.Vector, k int, msg string) {
+func AssertSearchAccuracy(t *testing.T, query []float32, results []vector.SearchResult, allVectors []vector.Vector, k int, msg string) {
 	t.Helper()
 
 	expectedID := FindClosestVector(query, allVectors)

@@ -123,7 +123,7 @@ func getEmbeddingViaPython(query string) ([]float32, error) {
 
 func main() {
 	fmt.Println("🍔🐼 FoodPanda Reviews Semantic Search Demo")
-	fmt.Println("==========================================\n")
+	fmt.Println("==========================================")
 
 	// Load precomputed embeddings
 	fmt.Print("Loading embeddings... ")
