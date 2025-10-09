@@ -44,13 +44,13 @@ func main() {
 
 	switch os.Args[1] {
 	case "bench":
-		benchCmd.Parse(os.Args[2:])
+		_ = benchCmd.Parse(os.Args[2:])
 		runBenchmark(*benchType, *benchVectors, *benchDim, *benchQueries)
 	case "build":
-		buildCmd.Parse(os.Args[2:])
+		_ = buildCmd.Parse(os.Args[2:])
 		runBuild(*buildType, *buildInput, *buildOutput, *buildDim)
 	case "search":
-		searchCmd.Parse(os.Args[2:])
+		_ = searchCmd.Parse(os.Args[2:])
 		runSearch(*searchIndex, *searchQuery, *searchK)
 	default:
 		printUsage()
@@ -138,7 +138,7 @@ func runBenchmark(indexType string, numVectors, dim, numQueries int) {
 	// Warmup
 	fmt.Println("Warming up...")
 	for i := 0; i < 10 && i < len(queries); i++ {
-		searchOne(idx, queries[i], 10)
+		_, _ = searchOne(idx, queries[i], 10)
 	}
 
 	// Benchmark search

@@ -131,7 +131,8 @@ func runBenchmark(config BenchmarkConfig) {
 }
 
 func generateDataset(config BenchmarkConfig) Dataset {
-	rand.Seed(config.Seed)
+	
+	rand.NewSource(config.Seed)
 
 	vectors := vector.GenerateRandom(config.NumVectors, config.Dimensions, config.Seed)
 
@@ -148,7 +149,7 @@ func generateDataset(config BenchmarkConfig) Dataset {
 
 func computeGroundTruth(vectors []vector.Vector, queries [][]float32, k int) [][]int64 {
 	idx, _ := flat.New(len(vectors[0].Data), "l2")
-	idx.Add(vectors)
+	_ = idx.Add(vectors)
 
 	groundTruth := make([][]int64, len(queries))
 	for i, query := range queries {
@@ -166,7 +167,7 @@ func benchmarkGoFAISSFlat(dataset Dataset, config BenchmarkConfig) BenchmarkResu
 	// Build
 	buildStart := time.Now()
 	idx, _ := flat.New(config.Dimensions, "l2")
-	idx.Add(dataset.Vectors)
+	_ = idx.Add(dataset.Vectors)
 	buildTime := time.Since(buildStart)
 
 	// Search
@@ -213,7 +214,7 @@ func benchmarkGoFAISSHNSW(dataset Dataset, config BenchmarkConfig) BenchmarkResu
 
 	buildStart := time.Now()
 	idx, _ := gofaiss_hnsw.New(config.Dimensions, "l2", hnswConfig)
-	idx.Add(dataset.Vectors)
+	_ = idx.Add(dataset.Vectors)
 	buildTime := time.Since(buildStart)
 
 	queryTimes := benchmarkSearch(func(query []float32) ([]vector.SearchResult, error) {
@@ -259,8 +260,8 @@ func benchmarkGoFAISSIVF(dataset Dataset, config BenchmarkConfig) BenchmarkResul
 	if trainSize > 5000 {
 		trainSize = 5000
 	}
-	idx.Train(dataset.Vectors[:trainSize])
-	idx.Add(dataset.Vectors)
+	_ = idx.Train(dataset.Vectors[:trainSize])
+	_ = idx.Add(dataset.Vectors)
 	buildTime := time.Since(buildStart)
 
 	nprobe := 10
@@ -310,8 +311,8 @@ func benchmarkGoFAISSPQ(dataset Dataset, config BenchmarkConfig) BenchmarkResult
 	if trainSize > 5000 {
 		trainSize = 5000
 	}
-	idx.Train(dataset.Vectors[:trainSize])
-	idx.Add(dataset.Vectors)
+	_ = idx.Train(dataset.Vectors[:trainSize])
+	_ = idx.Add(dataset.Vectors)
 	buildTime := time.Since(buildStart)
 
 	queryTimes := benchmarkSearch(func(query []float32) ([]vector.SearchResult, error) {
@@ -356,8 +357,8 @@ func benchmarkGoFAISSIVFPQ(dataset Dataset, config BenchmarkConfig) BenchmarkRes
 	if trainSize > 5000 {
 		trainSize = 5000
 	}
-	idx.Train(dataset.Vectors[:trainSize])
-	idx.Add(dataset.Vectors)
+	_ = idx.Train(dataset.Vectors[:trainSize])
+	_ = idx.Add(dataset.Vectors)
 	buildTime := time.Since(buildStart)
 
 	nprobe := 10
@@ -410,7 +411,7 @@ type queryMetrics struct {
 func benchmarkSearch(searchFunc func([]float32) ([]vector.SearchResult, error), queries [][]float32) queryMetrics {
 	// Warmup
 	for i := 0; i < 10 && i < len(queries); i++ {
-		searchFunc(queries[i])
+		_, _ = searchFunc(queries[i])
 	}
 
 	// Benchmark

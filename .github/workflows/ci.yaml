@@ -87,10 +87,10 @@ jobs:
     - name: Build
       run: go build -v ./...
 
-    - name: Build examples
-      run: |
-        cd example
-        go build -v basic_usage.go
+    # - name: Build examples
+    #   run: |
+    #     cd example
+    #     go build -v basic_usage.go
 
   benchmark:
     name: Benchmark

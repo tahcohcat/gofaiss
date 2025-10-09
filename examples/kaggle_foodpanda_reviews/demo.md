@@ -19,7 +19,7 @@ The demo uses **vector similarity search** powered by GoFAISS's HNSW (Hierarchic
 
 ### Prerequisites
 
-- **Go 1.21+** - [Install Go](https://go.dev/doc/install)
+- **Go 1.24+** - [Install Go](https://go.dev/doc/install)
 - **Python 3.8+** with `sentence-transformers` - For generating embeddings
   ```bash
   pip install sentence-transformers

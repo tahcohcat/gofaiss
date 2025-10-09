@@ -13,7 +13,7 @@ import (
 
 // Index is a simple flat (brute-force) index placeholder
 type Index struct {
-	dim int
+	dim     int
 	metric  string // "l2" or "cosine"
 	vectors []vector.Vector
 	mu      sync.RWMutex
@@ -21,7 +21,7 @@ type Index struct {
 
 // New creates a new flat index
 func New(dim int, metric string) (*Index, error) {
-		if dim <= 0 {
+	if dim <= 0 {
 		return nil, fmt.Errorf("dimension must be positive")
 	}
 	if metric != "l2" && metric != "cosine" {
@@ -36,7 +36,7 @@ func New(dim int, metric string) (*Index, error) {
 }
 
 // Add adds vectors to the index (no-op placeholder)
-func (idx *Index) Add(vs []vector.Vector) error { 	
+func (idx *Index) Add(vs []vector.Vector) error {
 	idx.mu.Lock()
 	defer idx.mu.Unlock()
 
@@ -44,7 +44,7 @@ func (idx *Index) Add(vs []vector.Vector) error {
 		if len(v.Data) != idx.dim {
 			return fmt.Errorf("vector dimension mismatch: expected %d, got %d", idx.dim, len(v.Data))
 		}
-		
+
 		// Compute norm for cosine similarity
 		if idx.metric == "cosine" {
 			v.Norm = internalmath.Norm(v.Data)
@@ -52,10 +52,10 @@ func (idx *Index) Add(vs []vector.Vector) error {
 				return fmt.Errorf("zero vector not allowed for cosine metric")
 			}
 		}
-		
+
 		idx.vectors = append(idx.vectors, v)
 	}
-	return nil 
+	return nil
 }
 
 // BatchSearch performs batch search
@@ -122,31 +122,30 @@ func (idx *Index) GetVectors() []vector.Vector {
 
 // In pkg/index/pq/pq.go
 func (idx *Index) Save(w storage.Writer) error {
-    idx.mu.Lock()
-    defer idx.mu.Unlock()
-    
-    if err := w.Encode(idx.dim); err != nil {
-        return err
-    }
-    if err := w.Encode(idx.vectors); err != nil {
-        return err
-    }
-    return nil
+	idx.mu.Lock()
+	defer idx.mu.Unlock()
+
+	if err := w.Encode(idx.dim); err != nil {
+		return err
+	}
+	if err := w.Encode(idx.vectors); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (idx *Index) Load(r storage.Reader) error {
-    idx.mu.Lock()
-    defer idx.mu.Unlock()
-    
-    if err := r.Decode(&idx.dim); err != nil {
-        return err
-    }
-    if err := r.Decode(&idx.vectors); err != nil {
-        return err
-    }
-    return nil
-}
+	idx.mu.Lock()
+	defer idx.mu.Unlock()
 
+	if err := r.Decode(&idx.dim); err != nil {
+		return err
+	}
+	if err := r.Decode(&idx.vectors); err != nil {
+		return err
+	}
+	return nil
+}
 
 // Stats returns minimal stats
 // todo: implement stats
