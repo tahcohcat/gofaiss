@@ -1,26 +1,26 @@
 package main
 
 import (
-	"bytes"
+	"bufio"
 	"encoding/csv"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"os"
-    "bufio"
+	"os/exec"
 	"strconv"
-    "strings"
+	"strings"
+	"time"
 
 	"github.com/tahcohcat/gofaiss/pkg/index/hnsw"
 	"github.com/tahcohcat/gofaiss/pkg/vector"
 )
 
-// HF API endpoint and token
-const (
-	HFToken = ""
-	HFURL   = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
-)
+// Review represents one parsed review
+type Review struct {
+	Text       string
+	Restaurant string
+	Cuisine    string
+	City       string
+}
 
 // loadCSVEmbeddings loads precomputed embeddings from CSV
 func loadCSVEmbeddings(path string) ([][]float32, error) {
@@ -47,22 +47,14 @@ func loadCSVEmbeddings(path string) ([][]float32, error) {
 	return embs, nil
 }
 
-// Review represents one parsed line
-type Review struct {
-	Text       string
-	Restaurant string
-	Cuisine    string
-	City       string
-}
-
-// loadTexts loads texts from JSON
+// loadTexts loads review texts from file (one per line)
 func loadTexts(path string) ([]Review, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer file.Close()
-	
+
 	var reviews []Review
 	scanner := bufio.NewScanner(file)
 
@@ -70,7 +62,7 @@ func loadTexts(path string) ([]Review, error) {
 		line := scanner.Text()
 		parts := strings.Split(line, " | ")
 		if len(parts) != 4 {
-			fmt.Println("Skipping malformed line:", line)
+			fmt.Println("Warning: Skipping malformed line")
 			continue
 		}
 
@@ -85,64 +77,87 @@ func loadTexts(path string) ([]Review, error) {
 	}
 
 	if err := scanner.Err(); err != nil {
-		panic(err)
+		return nil, err
 	}
 	return reviews, nil
 }
 
-// getEmbedding calls Hugging Face API for a single query
-func getEmbedding(query string) ([]float32, error) {
-	input := map[string]interface{}{
-		"inputs": query,
-	}
-	body, _ := json.Marshal(input)
-	req, _ := http.NewRequest("POST", HFURL, bytes.NewBuffer(body))
-	req.Header.Set("Authorization", "Bearer "+HFToken)
-	req.Header.Set("Content-Type", "application/json")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
+// getEmbeddingViaPython calls a small Python helper script to get embeddings
+// This is the simplest solution that guarantees compatibility
+func getEmbeddingViaPython(query string) ([]float32, error) {
+	// Check if Python is available
+	_, err := exec.LookPath("python")
 	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	respBody, _ := ioutil.ReadAll(resp.Body)
-	// Hugging Face returns {"embedding":[...]} or just [...] depending on model
-    fmt.Printf("HF response: [%v]%s\n", resp, string(respBody)) // Debug print
-	var result map[string][]float32
-	if err := json.Unmarshal(respBody, &result); err != nil {
-		// fallback: try parsing as []float32 directly
-		var arr []float32
-		if err2 := json.Unmarshal(respBody, &arr); err2 != nil {
-			return nil, fmt.Errorf("failed to parse HF response: %v", err)
+		_, err = exec.LookPath("python3")
+		if err != nil {
+			return nil, fmt.Errorf("python not found. Please install Python and sentence-transformers")
 		}
-		return arr, nil
 	}
-	return result["embedding"], nil
+
+	// Create a temporary Python script if it doesn't exist
+	scriptPath := "examples/kaggle_foodpanda_reviews/data/get_embedding.py"
+	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
+		return nil, fmt.Errorf("embedding script not found at %s\nRun: python generate_embedding_script.py", scriptPath)
+	}
+
+	// Call Python script
+	cmd := exec.Command("python", scriptPath, query)
+	output, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("failed to run Python script: %v", err)
+	}
+
+	// Parse comma-separated output
+	parts := strings.Split(strings.TrimSpace(string(output)), ",")
+	embedding := make([]float32, len(parts))
+	for i, p := range parts {
+		val, err := strconv.ParseFloat(strings.TrimSpace(p), 32)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse embedding value: %v", err)
+		}
+		embedding[i] = float32(val)
+	}
+
+	return embedding, nil
 }
 
 func main() {
+	fmt.Println("🍔🐼 FoodPanda Reviews Semantic Search Demo")
+	fmt.Println("==========================================\n")
+
 	// Load precomputed embeddings
+	fmt.Print("Loading embeddings... ")
 	embs, err := loadCSVEmbeddings("examples/kaggle_foodpanda_reviews/data/embeddings_1k.csv")
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error: %v\n", err)
+		fmt.Println("Make sure you've run the Python script to generate embeddings_1k.csv")
+		os.Exit(1)
 	}
+	fmt.Printf("✓ Loaded %d embeddings (dim=%d)\n", len(embs), len(embs[0]))
 
 	// Load corresponding texts
-	reviews, err := loadTexts("examples/kaggle_foodpanda_reviews/data/texts_1k.csv")
+	fmt.Print("Loading reviews... ")
+	reviews, err := loadTexts("examples/kaggle_foodpanda_reviews/data/texts_1k.txt")
 	if err != nil {
-		panic(err)
+		fmt.Printf("Error: %v\n", err)
+		fmt.Println("Make sure you've run the Python script to generate texts_1k.txt")
+		os.Exit(1)
 	}
+	fmt.Printf("✓ Loaded %d reviews\n", len(reviews))
 
-	// Build FAISS index
+	// Build HNSW index
+	fmt.Print("Building HNSW index... ")
 	dim := len(embs[0])
-	index, err := hnsw.New(dim, "cosine", hnsw.DefaultConfig())
+	index, err := hnsw.New(dim, "cosine", hnsw.Config{
+		M:              16,
+		EfConstruction: 200,
+		EfSearch:       100,
+	})
 	if err != nil {
 		panic(err)
 	}
 
-	// Convert [][]float32 to []vector.Vector
+	// Convert embeddings to vectors
 	vectors := make([]vector.Vector, len(embs))
 	for i, emb := range embs {
 		vectors[i] = vector.Vector{
@@ -155,31 +170,77 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("✓ Index built")
 
-	fmt.Println("Go-FAISS demo ready! Type a query:")
-
-	// Read query from user
-	var query string
-	fmt.Print("> ")
-	fmt.Scanln(&query)
-
-	// Get embedding from Hugging Face
-	qEmb, err := getEmbedding(query)
-	if err != nil {
-		panic(err)
+	// Check for embedding script
+	scriptPath := "examples/kaggle_foodpanda_reviews/data/get_embedding.py"
+	if _, err := os.Stat(scriptPath); os.IsNotExist(err) {
+		fmt.Println("\n  Embedding script not found!")
+		fmt.Println("Creating the helper script at:", scriptPath)
+		fmt.Println("\nPlease run this command first:")
+		fmt.Println("  python examples/kaggle_foodpanda_reviews/data/create_embedding_helper.py")
+		fmt.Println("\nOr create get_embedding.py manually with the content shown in the instructions.")
+		os.Exit(1)
 	}
 
-	// Search FAISS
-	k := 5
-	results, err := index.Search(qEmb, k)
-	if err != nil {
-		panic(err)
-	}
+	// Interactive search loop
+	fmt.Println("\n Ready to search! Type your query (or 'quit' to exit)")
+	fmt.Println("Example queries:")
+	fmt.Println("  - delicious biryani")
+	fmt.Println("  - bad service slow delivery")
+	fmt.Println("  - best chinese food")
+	fmt.Println()
 
-	fmt.Println("\nTop matches:")
-	for i, result := range results {
-		if int(result.ID) < len(reviews) {
-			fmt.Printf("%d. %s (distance %.4f)\n", i+1, reviews[result.ID], result.Distance)
+	scanner := bufio.NewScanner(os.Stdin)
+	for {
+		fmt.Print("> ")
+		if !scanner.Scan() {
+			break
 		}
+		query := strings.TrimSpace(scanner.Text())
+
+		if query == "" {
+			continue
+		}
+		if query == "quit" || query == "exit" {
+			fmt.Println("Goodbye!")
+			break
+		}
+
+		// Get embedding via Python helper
+		fmt.Print("Getting embedding... ")
+		qEmb, err := getEmbeddingViaPython(query)
+		if err != nil {
+			fmt.Printf("\n Error: %v\n\n", err)
+			continue
+		}
+		fmt.Println("✓")
+
+		// Search FAISS
+		start := time.Now()
+		k := 5
+		results, err := index.Search(qEmb, k)
+		if err != nil {
+			fmt.Printf(" Search error: %v\n\n", err)
+			continue
+		}
+	
+		elapsed := float64(time.Since(start).Nanoseconds()) / 1e6
+
+		// Display results
+		fmt.Printf("\n Top %d matches [search time:%.9fms]:\n", k, elapsed)
+		fmt.Println(strings.Repeat("-", 80))
+		for i, result := range results {
+			if int(result.ID) < len(reviews) {
+				r := reviews[result.ID]
+				similarity := 1.0 - result.Distance // Convert distance to similarity
+				fmt.Printf("\n%d. [Similarity: %.3f]\n", i+1, similarity)
+				fmt.Printf("   Review: %s\n", r.Text)
+				fmt.Printf("   Restaurant: %s | Cuisine: %s | City: %s\n",
+					r.Restaurant, r.Cuisine, r.City)
+			}
+		}
+		fmt.Println(strings.Repeat("-", 80))
+		fmt.Println()
 	}
 }

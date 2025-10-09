@@ -110,6 +110,7 @@ gofaiss/
 - **[Architecture](./docs/architecture.md)** - Design and implementation details
 - **[Benchmarks](./docs/benchmarks.md)** - Performance comparisons and metrics
 - **[Roadmap](./docs/roadmap.md)** - Future plans and features
+- **[Demo](./examples/kaggle_foodpanda_reviews/demo.md)** - Foodpanda HNSW dataset search 
 
 ## Benchmarks
 

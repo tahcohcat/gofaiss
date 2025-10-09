@@ -465,3 +465,7 @@ func main() {
     fmt.Println("Done!")
 }
 ```
+
+## 🍔🐼 Demo
+
+* Run the included [FoodPanda](../examples/kaggle_foodpanda_reviews/demo.md) demo to see a real world example using the library
