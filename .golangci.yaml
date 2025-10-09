@@ -1,28 +1,17 @@
-version: "2"
-run:
-  tests: true
+linters-settings:
+  staticcheck:
+    checks: ["all"]
+
+output:
+  formats:
+    - format: colored-line-number
+
 linters:
-  settings:
-    staticcheck:
-      checks:
-        - all
-  exclusions:
-    generated: lax
-    presets:
-      - comments
-      - common-false-positives
-      - legacy
-      - std-error-handling
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
-formatters:
   enable:
+    - govet
+    - staticcheck
+    - unused
     - gofumpt
-  exclusions:
-    generated: lax
-    paths:
-      - third_party$
-      - builtin$
-      - examples$
+    - gosimple
+    - errcheck
+    - ineffassign
