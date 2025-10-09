@@ -132,8 +132,8 @@ See [detailed benchmarks](./docs/benchmarks.md) for more results, scaling analys
 
 See the [examples](./example) directory for more detailed usage examples.
 
-## License
 
-MIT License
+<br><br>
 
----
+
+# ____________Made with ❤️ by the GoFAISS Team

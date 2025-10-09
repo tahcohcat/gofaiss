@@ -298,4 +298,4 @@ Want to build your own vector search application? Try:
 
 **Questions or issues?** Open an issue on [GitHub](https://github.com/tahcohcat/gofaiss/issues)
 
-**Happy searching! **
+💙 **Happy searching!** 
