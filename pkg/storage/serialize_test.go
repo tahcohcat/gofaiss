@@ -207,7 +207,7 @@ func TestGobVersionedSerialization(t *testing.T) {
 	// Try to load as V2 (should handle missing field gracefully)
 	v2 := V2Data{}
 	dec := gob.NewDecoder(&buf)
-	
+
 	// Note: Gob will set NewField to zero value since it's missing
 	if err := dec.Decode(&v2); err != nil {
 		// Gob may fail if struct definition changed incompatibly
@@ -248,7 +248,7 @@ func TestJSONVersionedSerialization(t *testing.T) {
 	}
 
 	if v2.Version != 1 || v2.Name != "test" || v2.NewField != 0 {
-		t.Errorf("V2 data mismatch: version=%d, name=%s, newField=%d", 
+		t.Errorf("V2 data mismatch: version=%d, name=%s, newField=%d",
 			v2.Version, v2.Name, v2.NewField)
 	}
 }
@@ -270,7 +270,7 @@ func TestFormatCompatibility(t *testing.T) {
 	for _, format := range formats {
 		t.Run(string(format), func(t *testing.T) {
 			var buf bytes.Buffer
-			
+
 			writer, err := NewWriter(&buf, format)
 			if err != nil {
 				t.Fatalf("Failed to create writer: %v", err)

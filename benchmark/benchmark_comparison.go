@@ -131,7 +131,6 @@ func runBenchmark(config BenchmarkConfig) {
 }
 
 func generateDataset(config BenchmarkConfig) Dataset {
-	
 	rand.NewSource(config.Seed)
 
 	vectors := vector.GenerateRandom(config.NumVectors, config.Dimensions, config.Seed)
@@ -398,8 +397,6 @@ func benchmarkGoFAISSIVFPQ(dataset Dataset, config BenchmarkConfig) BenchmarkRes
 	}
 }
 
-
-
 type queryMetrics struct {
 	avg float64
 	p50 float64
@@ -569,7 +566,7 @@ func saveResults(results []BenchmarkResult, filename string) {
 		return
 	}
 
-	err = os.WriteFile(filename, data, 0644)
+	err = os.WriteFile(filename, data, 0o644)
 	if err != nil {
 		log.Printf("Failed to write results: %v", err)
 	}

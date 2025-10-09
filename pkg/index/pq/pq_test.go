@@ -331,7 +331,7 @@ func BenchmarkPQAdd(b *testing.B) {
 	idx, _ := NewIndex(128, config)
 
 	trainVectors := vector.GenerateRandom(10000, 128, 42)
-	_ =idx.Train(trainVectors)
+	_ = idx.Train(trainVectors)
 
 	vectors := vector.GenerateRandom(1000, 128, 43)
 

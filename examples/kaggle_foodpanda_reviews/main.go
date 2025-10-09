@@ -224,7 +224,7 @@ func main() {
 			fmt.Printf(" Search error: %v\n\n", err)
 			continue
 		}
-	
+
 		elapsed := float64(time.Since(start).Nanoseconds()) / 1e6
 
 		// Display results

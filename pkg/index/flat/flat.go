@@ -32,7 +32,6 @@ func New(dim int, metric string) (*Index, error) {
 		metric:  metric,
 		vectors: make([]vector.Vector, 0),
 	}, nil
-
 }
 
 // Add adds vectors to the index (no-op placeholder)

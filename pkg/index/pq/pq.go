@@ -20,10 +20,10 @@ type Config struct {
 // Index implements Product Quantization index
 type Index struct {
 	dim       int
-	M         int   // number of subquantizers
-	Nbits     int   // bits per code
-	Ksub      int   // number of centroids per subquantizer (2^Nbits)
-	dsub      int   // dimension of each subspace (dim/M)
+	M         int         // number of subquantizers
+	Nbits     int         // bits per code
+	Ksub      int         // number of centroids per subquantizer (2^Nbits)
+	dsub      int         // dimension of each subspace (dim/M)
 	codebooks [][]float32 // [M][Ksub][dsub] flattened
 	codes     [][]uint8   // compressed codes for each vector
 	ids       []int64     // vector IDs
@@ -75,20 +75,20 @@ func (idx *Index) Train(vectors []vector.Vector) error {
 
 	// Train codebook for each subspace
 	idx.codebooks = make([][]float32, idx.M)
-	
+
 	for m := 0; m < idx.M; m++ {
 		// Extract subspace vectors
 		subVectors := make([][]float32, len(vectors))
 		start := m * idx.dsub
 		end := start + idx.dsub
-		
+
 		for i, v := range vectors {
 			subVectors[i] = v.Data[start:end]
 		}
-		
+
 		// Run k-means to get Ksub centroids
 		centroids := kMeansSubspace(subVectors, idx.Ksub, 10)
-		
+
 		// Flatten centroids into codebook
 		idx.codebooks[m] = make([]float32, idx.Ksub*idx.dsub)
 		for k := 0; k < idx.Ksub; k++ {
@@ -146,7 +146,7 @@ func (idx *Index) Search(query []float32, k int) ([]vector.SearchResult, error) 
 		start := m * idx.dsub
 		end := start + idx.dsub
 		querySubspace := query[start:end]
-		
+
 		distTables[m] = make([]float32, idx.Ksub)
 		for ksub := 0; ksub < idx.Ksub; ksub++ {
 			centroid := idx.codebooks[m][ksub*idx.dsub : (ksub+1)*idx.dsub]
@@ -203,7 +203,6 @@ func (idx *Index) Dimension() int {
 	return idx.dim
 }
 
-
 // Stats returns index statistics
 func (idx *Index) Stats() stats.Stats {
 	idx.mu.RLock()
@@ -245,16 +244,16 @@ func (idx *Index) IsTrained() bool {
 // encode encodes a vector into PQ codes
 func (idx *Index) encode(v []float32) []uint8 {
 	code := make([]uint8, idx.M)
-	
+
 	for m := 0; m < idx.M; m++ {
 		start := m * idx.dsub
 		end := start + idx.dsub
 		subVector := v[start:end]
-		
+
 		// Find nearest centroid in this subspace
 		minDist := float32(math.Inf(1))
 		minIdx := 0
-		
+
 		for ksub := 0; ksub < idx.Ksub; ksub++ {
 			centroid := idx.codebooks[m][ksub*idx.dsub : (ksub+1)*idx.dsub]
 			dist := internalMath.L2DistanceSquared(subVector, centroid)
@@ -263,10 +262,10 @@ func (idx *Index) encode(v []float32) []uint8 {
 				minIdx = ksub
 			}
 		}
-		
+
 		code[m] = uint8(minIdx)
 	}
-	
+
 	return code
 }
 
@@ -275,9 +274,9 @@ func kMeansSubspace(vectors [][]float32, k int, maxIter int) [][]float32 {
 	if len(vectors) == 0 || k <= 0 {
 		return nil
 	}
-	
+
 	dim := len(vectors[0])
-	
+
 	// Initialize centroids using k-means++ style
 	centroids := make([][]float32, k)
 	step := len(vectors) / k
@@ -289,17 +288,17 @@ func kMeansSubspace(vectors [][]float32, k int, maxIter int) [][]float32 {
 		centroids[i] = make([]float32, dim)
 		copy(centroids[i], vectors[idx])
 	}
-	
+
 	// Iterate
 	for iter := 0; iter < maxIter; iter++ {
 		// Assign vectors to nearest centroid
 		assignments := make([]int, len(vectors))
 		changed := false
-		
+
 		for i, v := range vectors {
 			minDist := float32(math.Inf(1))
 			minIdx := 0
-			
+
 			for j, c := range centroids {
 				dist := internalMath.L2DistanceSquared(v, c)
 				if dist < minDist {
@@ -307,22 +306,22 @@ func kMeansSubspace(vectors [][]float32, k int, maxIter int) [][]float32 {
 					minIdx = j
 				}
 			}
-			
+
 			if assignments[i] != minIdx {
 				changed = true
 			}
 			assignments[i] = minIdx
 		}
-		
+
 		if !changed {
 			break
 		}
-		
+
 		// Update centroids
 		for i := range centroids {
 			sum := make([]float32, dim)
 			count := 0
-			
+
 			for j, a := range assignments {
 				if a == i {
 					for d := range sum {
@@ -331,7 +330,7 @@ func kMeansSubspace(vectors [][]float32, k int, maxIter int) [][]float32 {
 					count++
 				}
 			}
-			
+
 			if count > 0 {
 				for d := range sum {
 					centroids[i][d] = sum[d] / float32(count)
@@ -339,6 +338,6 @@ func kMeansSubspace(vectors [][]float32, k int, maxIter int) [][]float32 {
 			}
 		}
 	}
-	
+
 	return centroids
 }

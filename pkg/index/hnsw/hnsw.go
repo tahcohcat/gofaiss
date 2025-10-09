@@ -11,6 +11,7 @@ import (
 	"github.com/tahcohcat/gofaiss/pkg/metric"
 	"github.com/tahcohcat/gofaiss/pkg/vector"
 )
+
 type Node struct {
 	ID    int64
 	Data  []float32
@@ -322,7 +323,7 @@ func (idx *Index) insertNode(node *Node) {
 
 		for _, neighborID := range neighbors {
 			node.Edges[lc] = append(node.Edges[lc], neighborID)
-			
+
 			neighbor := idx.nodes[neighborID]
 			if lc <= neighbor.Level {
 				neighbor.Edges[lc] = append(neighbor.Edges[lc], node.ID)
